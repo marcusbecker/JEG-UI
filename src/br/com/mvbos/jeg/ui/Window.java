@@ -7,7 +7,15 @@ package br.com.mvbos.jeg.ui;
 
 import br.com.mvbos.jeg.ui.table.PropertyElementTable;
 import br.com.mvbos.jeg.element.ElementModel;
+import br.com.mvbos.jeg.element.ElementMovableModel;
+import br.com.mvbos.jeg.element.IButtonElement;
+import br.com.mvbos.jeg.element.SelectorElement;
+import br.com.mvbos.jeg.engine.GraphicTool;
+import br.com.mvbos.jeg.scene.Click;
+import br.com.mvbos.jeg.scene.IScene;
 import br.com.mvbos.jeg.ui.tree.ElementMutableTreeNode;
+import br.com.mvbos.jeg.window.IMemory;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -49,11 +57,16 @@ public class Window extends javax.swing.JFrame {
     private final DefaultMutableTreeNode root;
     private ElementModel selectedElement;
 
+    private IScene scene;
+    private final SelectorElement selector = new SelectorElement("selector");
+
     /**
      * Creates new form Window
      */
     public Window() {
 
+        selector.setColor(Color.WHITE);
+        
         treeMap.put(BACKGROUND, new ArrayList<ElementModel>(5));
         treeMap.put(STAGE, new ArrayList<ElementModel>(40));
         treeMap.put(FOREGROUND, new ArrayList<ElementModel>(20));
@@ -109,6 +122,8 @@ public class Window extends javax.swing.JFrame {
             }
 
         });
+
+        scene = initScene();
 
         iniciaAnimacao();
 
@@ -731,6 +746,10 @@ public class Window extends javax.swing.JFrame {
 
     private Point p = new Point();
 
+    private ElementModel[] stageElements = new ElementModel[30];
+
+    private final ElementModel mouseElement = new ElementModel(10, 10, null);
+
     private JPanel createCanvas() {
 
         canvas = new JPanel() {
@@ -739,26 +758,29 @@ public class Window extends javax.swing.JFrame {
             protected void paintComponent(Graphics gg) {
                 super.paintComponent(gg);
 
+                System.out.println("selector " + selector);
+                
                 Graphics2D g = (Graphics2D) gg;
 
                 g.setColor(btnCanvasColor.getBackground());
                 g.drawRect(0, 0, getWidth(), getHeight());
 
-                for (String k : treeMap.keySet()) {
-
-                    for (ElementModel el : treeMap.get(k)) {
-                        el.drawMe(g);
+                if (scene != null) {
+                    //scene.drawElements(g);
+                    for (String k : treeMap.keySet()) {
+                        for (ElementModel el : treeMap.get(k)) {
+                            el.drawMe(g);
+                        }
                     }
                 }
 
-                if (p.x < 0 || p.y < 0 || p.x > getWidth() || p.y > getHeight()) {
-                    return;
-                }
-
                 if (selectedElement != null) {
+                    if (p.x < 0 || p.y < 0 || p.x > getWidth() || p.y > getHeight()) {
+                        return;
+                    }
+
                     //g.setColor(Color.LIGHT_GRAY);
                     //g.drawRect(p.x - 5, p.y - 5, 10, 10);
-
                     if (selectedElement.isValidImage()) {
                         g.drawImage(selectedElement.getImage().getImage(), p.x - 5, p.y - 5, null);
                     } else {
@@ -766,8 +788,20 @@ public class Window extends javax.swing.JFrame {
                         g.drawRect(p.x - 5, p.y - 5, 10, 10);
                     }
 
-                }
+                } else {
+                    int sp = 5;
+                    g.setColor(Color.WHITE);
 
+                    for (ElementModel el : stageElements) {
+                        if (el == null) {
+                            break;
+                        }
+
+                        g.drawRect(el.getPx() - sp, el.getPy() - sp, el.getWidth() + sp * 2, el.getHeight() + sp * 2);
+                    }
+
+                    selector.drawMe(g);
+                }
             }
         };
 
@@ -776,9 +810,29 @@ public class Window extends javax.swing.JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
+                    selector.setPxy(e.getX(), e.getY());
+
                     if (selectedElement != null) {
                         addElement(copy(p.x, p.y, selectedElement));
+
+                    } else {
+                        mouseElement.setPxy(e.getX(), e.getY());
+
+                        for (int i = 0; i < stageElements.length; i++) {
+                            stageElements[i] = null;
+                        }
+
+                        for (String k : treeMap.keySet()) {
+                            for (ElementModel el : treeMap.get(k)) {
+
+                                if (GraphicTool.g().bcollide(el, mouseElement)) {
+                                    stageElements[0] = el;
+                                }
+                            }
+                        }
+
                     }
+
                 } else {
                     selectedElement = null;
                 }
@@ -791,7 +845,27 @@ public class Window extends javax.swing.JFrame {
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                if (selector.getPx() > 0 && selector.getWidth() > 0) {
+                    //scene.releaseElement(selector);
 
+                    selector.adjustToFind();
+                    //selector.setPx(selector.getPx() + ssc.getScenePositionX());
+                    //selector.setPy(selector.getPy() + ssc.getScenePositionY());
+
+                    for (int i = 0; i < stageElements.length; i++) {
+                        stageElements[i] = null;
+
+                        for (String k : treeMap.keySet()) {
+                            for (ElementModel el : treeMap.get(k)) {
+
+                                if (GraphicTool.g().bcollide(el, stageElements[i])) {
+                                    stageElements[i] = el;
+                                }
+                            }
+                        }
+                    }
+
+                }
             }
 
             @Override
@@ -811,6 +885,9 @@ public class Window extends javax.swing.JFrame {
             @Override
             public void mouseDragged(MouseEvent e) {
                 //p = e.getPoint();
+
+                selector.setWidth(e.getX());
+                selector.setHeight(e.getY());
             }
 
             @Override
@@ -847,13 +924,122 @@ public class Window extends javax.swing.JFrame {
                 el.setPxy(px, py);
                 el.setName(tfElName.getText());
 
-                
                 tree.updateUI();
-                
+
             } catch (NumberFormatException e) {
 
             }
         }
+    }
+
+    private IScene initScene() {
+        return new IScene() {
+
+            @Override
+            public void update() {
+            }
+
+            @Override
+            public void changeSceneEvent() {
+            }
+
+            @Override
+            public void selectElement(ElementModel e) {
+            }
+
+            @Override
+            public void focusElement(ElementModel e) {
+            }
+
+            @Override
+            public void releaseElement(ElementModel element, ElementModel anotherElement) {
+            }
+
+            @Override
+            public void closeWindow() {
+            }
+
+            @Override
+            public boolean startScene() {
+                return true;
+            }
+
+            @Override
+            public IMemory getElements() {
+                return null;
+            }
+
+            @Override
+            public void clickElement(int clickCount) {
+            }
+
+            @Override
+            public void clickElement(Click m) {
+            }
+
+            @Override
+            public void selectElement(ElementModel[] arr) {
+            }
+
+            @Override
+            public void mouseMove(ElementModel e, Click m) {
+            }
+
+            @Override
+            public void keyEvent(char keyChar, int keyCode) {
+            }
+
+            @Override
+            public void keyRelease(char keyChar, int keyCode) {
+            }
+
+            @Override
+            public void setTitle(String title) {
+            }
+
+            @Override
+            public String getTitle() {
+                return null;
+            }
+
+            @Override
+            public void releaseElement(ElementModel element) {
+            }
+
+            @Override
+            public void drawElements(Graphics2D g) {
+                for (String k : treeMap.keySet()) {
+                    for (ElementModel el : treeMap.get(k)) {
+                        el.drawMe(g);
+                    }
+                }
+            }
+
+            @Override
+            public void clickButton(IButtonElement button) {
+            }
+
+            @Override
+            public void moveElement(ElementMovableModel selectedMovableElement) {
+            }
+
+            @Override
+            public void reflashElementPosition(ElementMovableModel e) {
+            }
+
+            @Override
+            public void startGame() {
+            }
+
+            @Override
+            public Color getBgColor() {
+                return null;
+            }
+
+            @Override
+            public void resizeWindow() {
+            }
+        };
     }
 
 }
