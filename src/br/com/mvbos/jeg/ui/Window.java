@@ -66,7 +66,7 @@ public class Window extends javax.swing.JFrame {
     public Window() {
 
         selector.setColor(Color.WHITE);
-        
+
         treeMap.put(BACKGROUND, new ArrayList<ElementModel>(5));
         treeMap.put(STAGE, new ArrayList<ElementModel>(40));
         treeMap.put(FOREGROUND, new ArrayList<ElementModel>(20));
@@ -210,6 +210,7 @@ public class Window extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         tfElPx = new javax.swing.JTextField();
         tfElName = new javax.swing.JTextField();
+        lblCanvasInfo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -516,18 +517,25 @@ public class Window extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        lblCanvasInfo.setText(" ");
+
         javax.swing.GroupLayout pnBottomLayout = new javax.swing.GroupLayout(pnBottom);
         pnBottom.setLayout(pnBottomLayout);
         pnBottomLayout.setHorizontalGroup(
             pnBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnBottomLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(130, 130, 130))
+                .addGroup(pnBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnBottomLayout.createSequentialGroup()
+                        .addComponent(lblCanvasInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(pnBottomLayout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1)
+                        .addGap(130, 130, 130))))
         );
         pnBottomLayout.setVerticalGroup(
             pnBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -541,7 +549,9 @@ public class Window extends javax.swing.JFrame {
                         .addGroup(pnBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(34, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblCanvasInfo)
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -587,6 +597,7 @@ public class Window extends javax.swing.JFrame {
         //if (node.isLeaf()) {
         if (nodeInfo instanceof ElementModel) {
             //updateSelectedOnTable((ElementModel) nodeInfo);
+            singleSelection((ElementModel) nodeInfo);
             updateSelectedPropertie((ElementModel) nodeInfo);
         }
 
@@ -683,6 +694,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JLabel lblCanvasInfo;
     private javax.swing.JPanel pnBody;
     private javax.swing.JPanel pnBottom;
     private javax.swing.JPanel pnCanvas;
@@ -744,11 +756,25 @@ public class Window extends javax.swing.JFrame {
         return el;
     }
 
-    private Point p = new Point();
+    private Point mousePos = new Point();
+    private Point startDrag;
 
     private ElementModel[] stageElements = new ElementModel[30];
 
     private final ElementModel mouseElement = new ElementModel(10, 10, null);
+
+    private ElementModel hasColision(ElementModel element) {
+        for (String k : treeMap.keySet()) {
+            for (ElementModel el : treeMap.get(k)) {
+
+                if (GraphicTool.g().bcollide(el, element)) {
+                    return el;
+                }
+            }
+        }
+
+        return null;
+    }
 
     private JPanel createCanvas() {
 
@@ -758,8 +784,7 @@ public class Window extends javax.swing.JFrame {
             protected void paintComponent(Graphics gg) {
                 super.paintComponent(gg);
 
-                System.out.println("selector " + selector);
-                
+                //System.out.println("selector " + selector);
                 Graphics2D g = (Graphics2D) gg;
 
                 g.setColor(btnCanvasColor.getBackground());
@@ -775,17 +800,17 @@ public class Window extends javax.swing.JFrame {
                 }
 
                 if (selectedElement != null) {
-                    if (p.x < 0 || p.y < 0 || p.x > getWidth() || p.y > getHeight()) {
+                    if (mousePos.x < 0 || mousePos.y < 0 || mousePos.x > getWidth() || mousePos.y > getHeight()) {
                         return;
                     }
 
                     //g.setColor(Color.LIGHT_GRAY);
                     //g.drawRect(p.x - 5, p.y - 5, 10, 10);
                     if (selectedElement.isValidImage()) {
-                        g.drawImage(selectedElement.getImage().getImage(), p.x - 5, p.y - 5, null);
+                        g.drawImage(selectedElement.getImage().getImage(), mousePos.x - 5, mousePos.y - 5, null);
                     } else {
                         g.setColor(selectedElement.getDefaultColor());
-                        g.drawRect(p.x - 5, p.y - 5, 10, 10);
+                        g.drawRect(mousePos.x - 5, mousePos.y - 5, 10, 10);
                     }
 
                 } else {
@@ -800,6 +825,18 @@ public class Window extends javax.swing.JFrame {
                         g.drawRect(el.getPx() - sp, el.getPy() - sp, el.getWidth() + sp * 2, el.getHeight() + sp * 2);
                     }
 
+                    if (startDrag != null) {
+                        int npx = mousePos.x - startDrag.x;
+                        int npy = mousePos.y - startDrag.y;
+                        for (ElementModel el : stageElements) {
+                            if (el == null) {
+                                break;
+                            }
+
+                            g.drawRect(el.getPx() + npx, el.getPy() + npy, el.getWidth(), el.getHeight());
+                        }
+                    }
+
                     selector.drawMe(g);
                 }
             }
@@ -809,14 +846,52 @@ public class Window extends javax.swing.JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    selector.setPxy(e.getX(), e.getY());
 
                     if (selectedElement != null) {
-                        addElement(copy(p.x, p.y, selectedElement));
+                        addElement(copy(mousePos.x, mousePos.y, selectedElement));
 
                     } else {
                         mouseElement.setPxy(e.getX(), e.getY());
+
+                        singleSelection(hasColision(mouseElement));
+                        updateSelectedPropertie(stageElements[0]);
+
+                    }
+
+                } else {
+                    selectedElement = null;
+                    for (int i = 0; i < stageElements.length; i++) {
+                        stageElements[i] = null;
+                    }
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+
+                    mouseElement.setPxy(e.getX(), e.getY());
+                    if (hasColision(mouseElement) == null) {
+                        selector.setEnabled(true);
+                        selector.setPxy(e.getX(), e.getY());
+                    } else {
+                        startDrag = e.getPoint();
+                    }
+
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (selector.isEnabled()) {
+                        //System.out.println("Erro1");
+                        //scene.releaseElement(selector);
+                        selector.adjustInvertSelection();
+                        //selector.setPx(selector.getPx() + ssc.getScenePositionX());
+                        //selector.setPy(selector.getPy() + ssc.getScenePositionY());
 
                         for (int i = 0; i < stageElements.length; i++) {
                             stageElements[i] = null;
@@ -825,46 +900,34 @@ public class Window extends javax.swing.JFrame {
                         for (String k : treeMap.keySet()) {
                             for (ElementModel el : treeMap.get(k)) {
 
-                                if (GraphicTool.g().bcollide(el, mouseElement)) {
-                                    stageElements[0] = el;
+                                if (GraphicTool.g().bcollide(el, selector)) {
+                                    for (int i = 0; i < stageElements.length; i++) {
+                                        if (stageElements[i] != null) {
+                                            continue;
+                                        }
+                                        stageElements[i] = el;
+                                        break;
+                                    }
+
                                 }
                             }
                         }
 
-                    }
-
-                } else {
-                    selectedElement = null;
-                }
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (selector.getPx() > 0 && selector.getWidth() > 0) {
-                    //scene.releaseElement(selector);
-
-                    selector.adjustToFind();
-                    //selector.setPx(selector.getPx() + ssc.getScenePositionX());
-                    //selector.setPy(selector.getPy() + ssc.getScenePositionY());
-
-                    for (int i = 0; i < stageElements.length; i++) {
-                        stageElements[i] = null;
-
-                        for (String k : treeMap.keySet()) {
-                            for (ElementModel el : treeMap.get(k)) {
-
-                                if (GraphicTool.g().bcollide(el, stageElements[i])) {
-                                    stageElements[i] = el;
-                                }
+                    } else if (startDrag != null) {
+                        int npx = e.getPoint().x - startDrag.x;
+                        int npy = e.getPoint().y - startDrag.y;
+                        for (ElementModel el : stageElements) {
+                            if (el == null) {
+                                break;
                             }
+                            el.incPx(npx);
+                            el.incPy(npy);
                         }
+
                     }
 
+                    selector.setEnabled(false);
+                    startDrag = null;
                 }
             }
 
@@ -875,7 +938,7 @@ public class Window extends javax.swing.JFrame {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                p.x = -1;
+                mousePos.x = -1;
             }
 
         });
@@ -886,13 +949,19 @@ public class Window extends javax.swing.JFrame {
             public void mouseDragged(MouseEvent e) {
                 //p = e.getPoint();
 
-                selector.setWidth(e.getX());
-                selector.setHeight(e.getY());
+                if (selector.isVisible()) {
+                    selector.setWidth(e.getX());
+                    selector.setHeight(e.getY());
+                }
+
+                mousePos = e.getPoint();
+                lblCanvasInfo.setText(String.format("%d %d", mousePos.x, mousePos.y));
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                p = e.getPoint();
+                mousePos = e.getPoint();
+                lblCanvasInfo.setText(String.format("%d %d", mousePos.x, mousePos.y));
             }
         });
 
@@ -900,23 +969,44 @@ public class Window extends javax.swing.JFrame {
     }
 
     private void updateSelectedPropertie(ElementModel el) {
-        tfElName.setText(el.getName());
-        tfElPx.setText(String.valueOf(el.getPx()));
-        tfElPy.setText(String.valueOf(el.getPy()));
+        if (el != null) {
+            tfElName.setText(el.getName());
+            tfElPx.setText(String.valueOf(el.getPx()));
+            tfElPy.setText(String.valueOf(el.getPy()));
+        } else {
+            tfElName.setText(null);
+            tfElPx.setText(null);
+            tfElPy.setText(null);
+        }
+    }
+
+    private ElementModel getElementFromTree() {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+
+        if (node != null) {
+
+            Object nodeInfo = node.getUserObject();
+
+            if (nodeInfo instanceof ElementModel) {
+                return (ElementModel) nodeInfo;
+            }
+        }
+
+        return null;
     }
 
     private void setNewPxy() {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 
-        if (node == null) {
-            return;
+        ElementModel el = stageElements[0];
+
+        if (el == null) {
+            el = getElementFromTree();
         }
 
-        Object nodeInfo = node.getUserObject();
+        if (el != null) {
 
-        if (nodeInfo instanceof ElementModel) {
             int px, py;
-            ElementModel el = (ElementModel) nodeInfo;
+
             try {
                 px = Integer.parseInt(tfElPx.getText());
                 py = Integer.parseInt(tfElPy.getText());
@@ -1040,6 +1130,15 @@ public class Window extends javax.swing.JFrame {
             public void resizeWindow() {
             }
         };
+    }
+
+    private void singleSelection(ElementModel elementModel) {
+        for (int i = 0; i < stageElements.length; i++) {
+            stageElements[i] = null;
+
+        }
+
+        stageElements[0] = elementModel;
     }
 
 }
