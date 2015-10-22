@@ -776,6 +776,20 @@ public class Window extends javax.swing.JFrame {
         return null;
     }
 
+    private boolean isValidSelecion(ElementModel element) {
+        for (ElementModel el : stageElements) {
+            if (el == null) {
+                return false;
+            }
+
+            if (GraphicTool.g().bcollide(el, element)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private JPanel createCanvas() {
 
         canvas = new JPanel() {
@@ -809,7 +823,7 @@ public class Window extends javax.swing.JFrame {
                     if (selectedElement.isValidImage()) {
                         g.drawImage(selectedElement.getImage().getImage(), mousePos.x - 5, mousePos.y - 5, null);
                     } else {
-                        g.setColor(selectedElement.getDefaultColor());
+                        g.setColor(selectedElement.getColor());
                         g.drawRect(mousePos.x - 5, mousePos.y - 5, 10, 10);
                     }
 
@@ -850,21 +864,18 @@ public class Window extends javax.swing.JFrame {
                 if (e.getButton() == MouseEvent.BUTTON1) {
 
                     if (selectedElement != null) {
-                        addElement(copy(mousePos.x, mousePos.y, selectedElement));
+                        addElement(copy(e.getX(), e.getY(), selectedElement));
 
                     } else {
                         mouseElement.setPxy(e.getX(), e.getY());
 
                         singleSelection(hasColision(mouseElement));
                         updateSelectedPropertie(stageElements[0]);
-
                     }
 
                 } else {
                     selectedElement = null;
-                    for (int i = 0; i < stageElements.length; i++) {
-                        stageElements[i] = null;
-                    }
+                    singleSelection(null);
                 }
             }
 
@@ -873,7 +884,16 @@ public class Window extends javax.swing.JFrame {
                 if (e.getButton() == MouseEvent.BUTTON1) {
 
                     mouseElement.setPxy(e.getX(), e.getY());
-                    if (hasColision(mouseElement) == null) {
+
+                    System.out.println("stageElements[0] == null " + stageElements[0] == null);
+                    System.out.println("isValidSelecion " + isValidSelecion(mouseElement));
+                    /* && hasColision(mouseElement) == null*/
+
+                    /*if (stageElements[0] == null && hasColision(mouseElement) != null) {
+                        startDrag = e.getPoint();
+                        
+                    } else*/ 
+                    if (stageElements[0] == null || !isValidSelecion(mouseElement)) {
                         selector.setEnabled(true);
                         selector.setPxy(e.getX(), e.getY());
                     } else {
@@ -893,9 +913,7 @@ public class Window extends javax.swing.JFrame {
                         //selector.setPx(selector.getPx() + ssc.getScenePositionX());
                         //selector.setPy(selector.getPy() + ssc.getScenePositionY());
 
-                        for (int i = 0; i < stageElements.length; i++) {
-                            stageElements[i] = null;
-                        }
+                        singleSelection(null);
 
                         for (String k : treeMap.keySet()) {
                             for (ElementModel el : treeMap.get(k)) {
@@ -928,6 +946,7 @@ public class Window extends javax.swing.JFrame {
 
                     selector.setEnabled(false);
                     startDrag = null;
+                    updateSelectedPropertie(stageElements[0]);
                 }
             }
 

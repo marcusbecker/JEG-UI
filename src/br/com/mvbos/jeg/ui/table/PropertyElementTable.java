@@ -150,7 +150,7 @@ public class PropertyElementTable extends JTable {
         data[6][1] = el.isVisible();
         data[7][1] = el.isEnabled();
         data[8][1] = el.isValidImage() ? el.getImage() : new ImageIcon();
-        data[9][1] = el.getDefaultColor();
+        data[9][1] = el.getColor();
     }
 
     private void dataToElement(ElementModel element) {
