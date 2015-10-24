@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.mvbos.jeg.ui;
+package br.com.mvbos.jegui;
 
-import br.com.mvbos.jeg.ui.table.PropertyElementTable;
+import br.com.mvbos.jegui.ui.table.PropertyElementTable;
 import br.com.mvbos.jeg.element.ElementModel;
 import br.com.mvbos.jeg.element.ElementMovableModel;
 import br.com.mvbos.jeg.element.IButtonElement;
@@ -13,9 +13,10 @@ import br.com.mvbos.jeg.element.SelectorElement;
 import br.com.mvbos.jeg.engine.GraphicTool;
 import br.com.mvbos.jeg.scene.Click;
 import br.com.mvbos.jeg.scene.IScene;
-import br.com.mvbos.jeg.ui.tree.ElementMutableTreeNode;
+import br.com.mvbos.jegui.ui.tree.ElementMutableTreeNode;
 import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
+import br.com.mvbos.jegui.el.ButtonElement;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -29,18 +30,15 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.TransferHandler;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
 /**
  *
@@ -63,6 +61,8 @@ public class Window extends javax.swing.JFrame {
 
     private IScene scene;
     private final SelectorElement selector = new SelectorElement("selector");
+
+    private ButtonElement[] camMoveButton = new ButtonElement[4];
 
     /**
      * Creates new form Window
@@ -139,6 +139,10 @@ public class Window extends javax.swing.JFrame {
         });
 
         scene = initScene();
+
+        for (int i = 0; i < camMoveButton.length; i++) {
+            camMoveButton[i] = new ButtonElement(20, 20, null);
+        }
 
         iniciaAnimacao();
 
@@ -777,6 +781,7 @@ public class Window extends javax.swing.JFrame {
                 long prxAtualizacao = 0;
                 while (anima) {
                     if (System.currentTimeMillis() >= prxAtualizacao) {
+                        updateStage();
                         canvas.repaint();
                         prxAtualizacao = System.currentTimeMillis() + fps;
                     }
@@ -805,7 +810,7 @@ public class Window extends javax.swing.JFrame {
 
     private ElementModel[] stageElements = new ElementModel[30];
 
-    private final ElementModel mouseElement = new ElementModel(10, 10, null);
+    private final ElementModel mouseElement = new ElementModel(10, 10, "mouseElement");
 
     private ElementModel hasColision(ElementModel element) {
         for (String k : treeMap.keySet()) {
@@ -832,6 +837,61 @@ public class Window extends javax.swing.JFrame {
         }
 
         return false;
+    }
+
+    private void updateStage() {
+
+        int temp = 3;
+
+        for (int i = 0; i < camMoveButton.length; i++) {
+
+            if (camMoveButton[i] == null) {
+                continue;
+            }
+
+            int size = camMoveButton[i].getWidth() / 2;
+
+            switch (i) {
+                case 0:
+                    camMoveButton[i].setPxy(-size, canvas.getHeight() / 2);
+                    break;
+                case 1:
+                    camMoveButton[i].setPxy(canvas.getWidth() - size, canvas.getHeight() / 2);
+                    break;
+                case 2:
+                    camMoveButton[i].setPxy(canvas.getWidth() / 2, -size);
+                    break;
+                case 3:
+                    camMoveButton[i].setPxy(canvas.getWidth() / 2, canvas.getHeight() - size);
+                    break;
+            }
+
+            camMoveButton[i].setFocus(false);
+
+            if (GraphicTool.g().intersec(mousePos.x, mousePos.y, camMoveButton[i])) {
+
+                if (i == 0) {
+                    camMoveButton[i].setFocus(true);
+                    Camera.c().rollX(-temp);
+                    tfCamPx.setText(String.valueOf(Camera.c().getPx()));
+                } else if (i == 1) {
+                    camMoveButton[i].setFocus(true);
+                    Camera.c().rollX(temp);
+                    tfCamPx.setText(String.valueOf(Camera.c().getPx()));
+                } else if (i == 2) {
+                    camMoveButton[i].setFocus(true);
+                    Camera.c().rollY(-temp);
+                    tfCamPy.setText(String.valueOf(Camera.c().getPy()));
+                } else {
+                    camMoveButton[i].setFocus(true);
+                    Camera.c().rollY(temp);
+                    tfCamPy.setText(String.valueOf(Camera.c().getPy()));
+                }
+            }
+        }
+
+        
+        
     }
 
     private JPanel createCanvas() {
@@ -900,6 +960,12 @@ public class Window extends javax.swing.JFrame {
                     }
 
                     selector.drawMe(g);
+                }
+
+                for (ButtonElement b : camMoveButton) {
+                    if (b != null) {
+                        b.drawMe(g);
+                    }
                 }
             }
         };
@@ -1219,6 +1285,12 @@ public class Window extends javax.swing.JFrame {
 
         if (px != -1 && py != -1) {
             Camera.c().move(px, py);
+        }
+    }
+
+    private void log(ElementModel... el) {
+        for (ElementModel e : el) {
+            System.out.println(e);
         }
     }
 

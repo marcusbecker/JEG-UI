@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.mvbos.jeg.ui.table;
+package br.com.mvbos.jegui.ui.table;
 
 import br.com.mvbos.jeg.element.ElementModel;
 import java.awt.Color;

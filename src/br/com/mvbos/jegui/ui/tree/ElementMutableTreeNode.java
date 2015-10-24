@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.mvbos.jeg.ui.tree;
+package br.com.mvbos.jegui.ui.tree;
 
 import br.com.mvbos.jeg.element.ElementModel;
 import javax.swing.tree.DefaultMutableTreeNode;
