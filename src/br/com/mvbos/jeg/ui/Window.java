@@ -14,6 +14,7 @@ import br.com.mvbos.jeg.engine.GraphicTool;
 import br.com.mvbos.jeg.scene.Click;
 import br.com.mvbos.jeg.scene.IScene;
 import br.com.mvbos.jeg.ui.tree.ElementMutableTreeNode;
+import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -28,15 +29,18 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.TransferHandler;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 /**
  *
@@ -80,10 +84,21 @@ public class Window extends javax.swing.JFrame {
 
         initComponents();
 
+        Camera.c().config(SCREEN_WIDTH, SCREEN_HEIGHT);
+        tfWidth.setText(String.valueOf(SCREEN_WIDTH));
+        tfHeight.setText(String.valueOf(SCREEN_HEIGHT));
+
         root = new DefaultMutableTreeNode("Memory");
         tree.removeAll();
         tree.setModel(new DefaultTreeModel(root));
 
+        /*tree.setDragEnabled(true);
+         tree.setDropMode(DropMode.ON_OR_INSERT);
+         tree.setTransferHandler(new TransferHandler(){
+            
+         });
+         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
+         */
         for (String k : treeMap.keySet()) {
             DefaultMutableTreeNode t = new DefaultMutableTreeNode(k);
 
@@ -128,6 +143,8 @@ public class Window extends javax.swing.JFrame {
         iniciaAnimacao();
 
     }
+    private static final int SCREEN_HEIGHT = 600;
+    private static final int SCREEN_WIDTH = 800;
 
     private void addElement(ElementModel el) {
 
@@ -237,7 +254,7 @@ public class Window extends javax.swing.JFrame {
         );
         pnCanvasLayout.setVerticalGroup(
             pnCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 722, Short.MAX_VALUE)
+            .addGap(0, 761, Short.MAX_VALUE)
         );
 
         jSplitPane1.setLeftComponent(pnCanvas);
@@ -341,7 +358,7 @@ public class Window extends javax.swing.JFrame {
         pnTreeLayout.setVerticalGroup(
             pnTreeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnTreeLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnTreeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bntAddElement)
@@ -400,8 +417,18 @@ public class Window extends javax.swing.JFrame {
         tfHeight.setText("600");
 
         tfCamPx.setText("0");
+        tfCamPx.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tfCamPxKeyReleased(evt);
+            }
+        });
 
         tfCamPy.setText("0");
+        tfCamPy.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tfCamPyKeyReleased(evt);
+            }
+        });
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText(",");
@@ -611,6 +638,11 @@ public class Window extends javax.swing.JFrame {
                 public void actionPerformed(ActionEvent e) {
                     pnCanvas.setBackground(colorChooser.getColor());
                     btnCanvasColor.setBackground(pnCanvas.getBackground());
+
+                    Color x = colorChooser.getColor();
+                    Color c = (x.getRed() + x.getGreen() + x.getBlue()) / 3 < 127 ? Color.WHITE : Color.BLACK;
+
+                    selector.setColor(c);
                 }
             };
 
@@ -672,6 +704,18 @@ public class Window extends javax.swing.JFrame {
     private void tfElNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfElNameKeyReleased
         setNewPxy();
     }//GEN-LAST:event_tfElNameKeyReleased
+
+    private void tfCamPxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfCamPxKeyReleased
+
+        positionCam();
+
+    }//GEN-LAST:event_tfCamPxKeyReleased
+
+    private void tfCamPyKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfCamPyKeyReleased
+
+        positionCam();
+
+    }//GEN-LAST:event_tfCamPyKeyReleased
 
     private JDialog dialog;
     private JColorChooser colorChooser;
@@ -747,7 +791,7 @@ public class Window extends javax.swing.JFrame {
 
     private int id = 1;
 
-    private ElementModel copy(int px, int py, ElementModel source) {
+    private ElementModel copy(float px, float py, ElementModel source) {
         ElementModel el = new ElementModel(px, py, source.getWidth(), source.getHeight(), id + " " + source.getName());
         el.setId(id++);
         el.setColor(source.getColor());
@@ -801,14 +845,18 @@ public class Window extends javax.swing.JFrame {
                 //System.out.println("selector " + selector);
                 Graphics2D g = (Graphics2D) gg;
 
+                g.setColor(BACKGROUND_COLOR);
+                g.fillRect(0, 0, getWidth(), getHeight());
+
                 g.setColor(btnCanvasColor.getBackground());
-                g.drawRect(0, 0, getWidth(), getHeight());
+                g.fillRect(-Camera.c().getPx(), -Camera.c().getPy(), SCREEN_WIDTH, SCREEN_HEIGHT);
 
                 if (scene != null) {
                     //scene.drawElements(g);
                     for (String k : treeMap.keySet()) {
                         for (ElementModel el : treeMap.get(k)) {
-                            el.drawMe(g);
+                            //el.drawMe(g);
+                            Camera.c().draw(g, el);
                         }
                     }
                 }
@@ -821,7 +869,7 @@ public class Window extends javax.swing.JFrame {
                     //g.setColor(Color.LIGHT_GRAY);
                     //g.drawRect(p.x - 5, p.y - 5, 10, 10);
                     if (selectedElement.isValidImage()) {
-                        g.drawImage(selectedElement.getImage().getImage(), mousePos.x - 5, mousePos.y - 5, null);
+                        g.drawImage(selectedElement.getImage().getImage(), Camera.c().fx(mousePos.x - 5), Camera.c().fy(mousePos.y - 5), null);
                     } else {
                         g.setColor(selectedElement.getColor());
                         g.drawRect(mousePos.x - 5, mousePos.y - 5, 10, 10);
@@ -836,7 +884,7 @@ public class Window extends javax.swing.JFrame {
                             break;
                         }
 
-                        g.drawRect(el.getPx() - sp, el.getPy() - sp, el.getWidth() + sp * 2, el.getHeight() + sp * 2);
+                        g.drawRect(Camera.c().fx(el.getPx() - sp), Camera.c().fy(el.getPy() - sp), el.getWidth() + sp * 2, el.getHeight() + sp * 2);
                     }
 
                     if (startDrag != null) {
@@ -847,7 +895,7 @@ public class Window extends javax.swing.JFrame {
                                 break;
                             }
 
-                            g.drawRect(el.getPx() + npx, el.getPy() + npy, el.getWidth(), el.getHeight());
+                            g.drawRect(Camera.c().fx(el.getPx() + npx), Camera.c().fy(el.getPy() + npy), el.getWidth(), el.getHeight());
                         }
                     }
 
@@ -864,10 +912,10 @@ public class Window extends javax.swing.JFrame {
                 if (e.getButton() == MouseEvent.BUTTON1) {
 
                     if (selectedElement != null) {
-                        addElement(copy(e.getX(), e.getY(), selectedElement));
+                        addElement(copy(e.getX() + Camera.c().getCpx(), e.getY() + Camera.c().getCpy(), selectedElement));
 
                     } else {
-                        mouseElement.setPxy(e.getX(), e.getY());
+                        mouseElement.setPxy(e.getX() + Camera.c().getCpx(), e.getY() + Camera.c().getCpy());
 
                         singleSelection(hasColision(mouseElement));
                         updateSelectedPropertie(stageElements[0]);
@@ -883,16 +931,16 @@ public class Window extends javax.swing.JFrame {
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
 
-                    mouseElement.setPxy(e.getX(), e.getY());
+                    mouseElement.setPxy(e.getX() + Camera.c().getCpx(), e.getY() + Camera.c().getCpy());
 
-                    System.out.println("stageElements[0] == null " + stageElements[0] == null);
-                    System.out.println("isValidSelecion " + isValidSelecion(mouseElement));
+                    //System.out.println("stageElements[0] == null " + stageElements[0] == null);
+                    //System.out.println("isValidSelecion " + isValidSelecion(mouseElement));
                     /* && hasColision(mouseElement) == null*/
 
                     /*if (stageElements[0] == null && hasColision(mouseElement) != null) {
-                        startDrag = e.getPoint();
+                     startDrag = e.getPoint();
                         
-                    } else*/ 
+                     } else*/
                     if (stageElements[0] == null || !isValidSelecion(mouseElement)) {
                         selector.setEnabled(true);
                         selector.setPxy(e.getX(), e.getY());
@@ -910,8 +958,8 @@ public class Window extends javax.swing.JFrame {
                         //System.out.println("Erro1");
                         //scene.releaseElement(selector);
                         selector.adjustInvertSelection();
-                        //selector.setPx(selector.getPx() + ssc.getScenePositionX());
-                        //selector.setPy(selector.getPy() + ssc.getScenePositionY());
+                        selector.setPx(selector.getPx() + Camera.c().getCpx());
+                        selector.setPy(selector.getPy() + Camera.c().getCpy());
 
                         singleSelection(null);
 
@@ -973,19 +1021,24 @@ public class Window extends javax.swing.JFrame {
                     selector.setHeight(e.getY());
                 }
 
-                mousePos = e.getPoint();
-                lblCanvasInfo.setText(String.format("%d %d", mousePos.x, mousePos.y));
+                updateMousePosition(e);
+
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
+                updateMousePosition(e);
+            }
+
+            private void updateMousePosition(MouseEvent e) {
                 mousePos = e.getPoint();
-                lblCanvasInfo.setText(String.format("%d %d", mousePos.x, mousePos.y));
+                lblCanvasInfo.setText(String.format("%d %d Cam: %.0f %.0f ", mousePos.x, mousePos.y, mousePos.x + Camera.c().getCpx(), mousePos.y + Camera.c().getCpy()));
             }
         });
 
         return canvas;
     }
+    private static final Color BACKGROUND_COLOR = new Color(153, 153, 153);
 
     private void updateSelectedPropertie(ElementModel el) {
         if (el != null) {
@@ -1158,6 +1211,15 @@ public class Window extends javax.swing.JFrame {
         }
 
         stageElements[0] = elementModel;
+    }
+
+    private void positionCam() {
+        int px = Util.getInt(tfCamPx);
+        int py = Util.getInt(tfCamPy);
+
+        if (px != -1 && py != -1) {
+            Camera.c().move(px, py);
+        }
     }
 
 }
