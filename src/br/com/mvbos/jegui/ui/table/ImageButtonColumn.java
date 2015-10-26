@@ -42,7 +42,7 @@ public class ImageButtonColumn extends AbstractCellEditor implements TableCellEd
 
             @Override
             public boolean accept(File f) {
-                return f.isFile() && (f.getName().toLowerCase().endsWith(".png") || f.getName().toLowerCase().endsWith(".jpg"));
+                return f.isDirectory() ||  (f.isFile() && (f.getName().toLowerCase().endsWith(".png") || f.getName().toLowerCase().endsWith(".jpg")));
             }
 
             @Override

@@ -227,8 +227,8 @@ public class Window extends javax.swing.JFrame {
         pnLibrary = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         tableLibrary = new javax.swing.JTable();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnAddNewElement = new javax.swing.JButton();
+        btnRemoveElement = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         pnTree = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -261,6 +261,8 @@ public class Window extends javax.swing.JFrame {
         mnSave = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
+        dialodNewElement.setTitle("Add new Element");
+
         jLabelID.setText("ID:");
 
         jLabelName.setText("Name:");
@@ -283,8 +285,18 @@ public class Window extends javax.swing.JFrame {
         radioTypeButton.setText("Button");
 
         dlgNewElementCancel.setText("Cancel");
+        dlgNewElementCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dlgNewElementCancelActionPerformed(evt);
+            }
+        });
 
         dlgNewElementOK.setText("OK");
+        dlgNewElementOK.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dlgNewElementOKActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout dialodNewElementLayout = new javax.swing.GroupLayout(dialodNewElement.getContentPane());
         dialodNewElement.getContentPane().setLayout(dialodNewElementLayout);
@@ -301,15 +313,15 @@ public class Window extends javax.swing.JFrame {
                         .addComponent(jLabelName, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dlgTfName, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dialodNewElementLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(dlgNewElementCancel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dlgNewElementOK))
                     .addComponent(radioTypeImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(radioTypeSprite, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(radioTypeText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(radioTypeButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(radioTypeButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dialodNewElementLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(dlgNewElementOK)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dlgNewElementCancel)))
                 .addContainerGap())
         );
         dialodNewElementLayout.setVerticalGroup(
@@ -331,11 +343,11 @@ public class Window extends javax.swing.JFrame {
                 .addComponent(radioTypeText)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(radioTypeButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dialodNewElementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dlgNewElementOK)
                     .addComponent(dlgNewElementCancel))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -445,9 +457,14 @@ public class Window extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(tableLibrary);
 
-        jButton2.setText("+");
+        btnAddNewElement.setText("+");
+        btnAddNewElement.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddNewElementActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("-");
+        btnRemoveElement.setText("-");
 
         javax.swing.GroupLayout pnLibraryLayout = new javax.swing.GroupLayout(pnLibrary);
         pnLibrary.setLayout(pnLibraryLayout);
@@ -456,9 +473,9 @@ public class Window extends javax.swing.JFrame {
             .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addGroup(pnLibraryLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton2)
+                .addComponent(btnAddNewElement)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
+                .addComponent(btnRemoveElement)
                 .addContainerGap(216, Short.MAX_VALUE))
         );
         pnLibraryLayout.setVerticalGroup(
@@ -467,8 +484,8 @@ public class Window extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnLibraryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3))
+                    .addComponent(btnAddNewElement)
+                    .addComponent(btnRemoveElement))
                 .addContainerGap())
         );
 
@@ -845,9 +862,7 @@ public class Window extends javax.swing.JFrame {
         Object nodeInfo = node.getUserObject();
         //if (node.isLeaf()) {
         if (nodeInfo instanceof ElementModel) {
-            updateSelectedOnTable((ElementModel) nodeInfo);
-            singleSelection((ElementModel) nodeInfo);
-            updateSelectedProperties((ElementModel) nodeInfo);
+            selectElementOnStage((ElementModel) nodeInfo);
         }
 
     }//GEN-LAST:event_treeValueChanged
@@ -893,8 +908,7 @@ public class Window extends javax.swing.JFrame {
             return;
         }
 
-        selectedElement = all.get(sel);
-        //updateSelectedOnTable(selectedElement);
+        selectElementOnLibrary(all.get(sel));
 
     }//GEN-LAST:event_tableLibraryMouseClicked
 
@@ -958,16 +972,45 @@ public class Window extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnEdTLHandActionPerformed
 
+    private void btnAddNewElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewElementActionPerformed
+
+        dlgTfID.setText(String.valueOf(all.size() + 1));
+        dialodNewElement.pack();
+        dialodNewElement.setLocationRelativeTo(this);
+        
+        dialodNewElement.setVisible(true);
+        
+
+    }//GEN-LAST:event_btnAddNewElementActionPerformed
+
+    private void dlgNewElementOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlgNewElementOKActionPerformed
+
+        ElementModel el = new ElementModel(20, 20, dlgTfName.getText());
+        el.setId(Util.getInt(dlgTfID));
+        all.add(el);
+        dialodNewElement.dispose();
+        tableLibrary.updateUI();
+
+    }//GEN-LAST:event_dlgNewElementOKActionPerformed
+
+    private void dlgNewElementCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlgNewElementCancelActionPerformed
+
+        dialodNewElement.setVisible(false);
+
+    }//GEN-LAST:event_dlgNewElementCancelActionPerformed
+
     private JDialog dialog;
     private JColorChooser colorChooser;
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bntAddElement;
+    private javax.swing.JButton btnAddNewElement;
     private javax.swing.JButton btnCanvasColor;
     private javax.swing.JToggleButton btnEdTLHand;
     private javax.swing.JToggleButton btnEdTLSelect;
     private javax.swing.JButton btnPreview;
+    private javax.swing.JButton btnRemoveElement;
     private javax.swing.JButton btnRemoveElementTree;
     private javax.swing.ButtonGroup buttonGroupType;
     private javax.swing.JFrame dialodNewElement;
@@ -976,8 +1019,6 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JTextField dlgTfID;
     private javax.swing.JTextField dlgTfName;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1025,7 +1066,9 @@ public class Window extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void updateSelectedOnTable(ElementModel el) {
-
+        if (el == null) {
+            return;
+        }
         elementTable.setElement(el);
         //selected = el;
         //System.out.println(el);
@@ -1074,9 +1117,14 @@ public class Window extends javax.swing.JFrame {
     private final ElementModel mouseElement = new ElementModel(10, 10, "mouseElement");
 
     private ElementModel hasColision(ElementModel element) {
-        for (String k : treeMap.keySet()) {
-            for (int i = treeMap.get(k).size() - 1; i >= 0; i--) {
-                ElementModel el = treeMap.get(k).get(i);
+
+        String[] tabs = treeMap.keySet().toArray(new String[0]);
+
+        for (int i = tabs.length - 1; i >= 0; i--) {
+            String k = tabs[i];
+
+            for (int j = treeMap.get(k).size() - 1; j >= 0; j--) {
+                ElementModel el = treeMap.get(k).get(j);
                 if (GraphicTool.g().bcollide(el, element)) {
                     return el;
                 }
@@ -1195,10 +1243,10 @@ public class Window extends javax.swing.JFrame {
                     //g.setColor(Color.LIGHT_GRAY);
                     //g.drawRect(p.x - 5, p.y - 5, 10, 10);
                     if (selectedElement.isValidImage()) {
-                        g.drawImage(selectedElement.getImage().getImage(), Camera.c().fx(mousePos.x - 5), Camera.c().fy(mousePos.y - 5), null);
+                        g.drawImage(selectedElement.getImage().getImage(), mousePos.x - 5, mousePos.y - 5, null);
                     } else {
                         g.setColor(selectedElement.getColor());
-                        g.drawRect(mousePos.x - 5, mousePos.y - 5, 10, 10);
+                        g.drawRect(mousePos.x - 5, mousePos.y - 5, selectedElement.getWidth(), selectedElement.getHeight());
                     }
 
                 } else {
@@ -1253,14 +1301,14 @@ public class Window extends javax.swing.JFrame {
                         addElement(copy(e.getX() + Camera.c().getCpx(), e.getY() + Camera.c().getCpy(), selectedElement));
 
                         //TODO add if control key is pressed
-                        selectedElement = null;
-
+                        //selectedElement = null;
+                        //tableLibrary.clearSelection();
+                        //
                     } else {
                         mouseElement.setPxy(e.getX() + Camera.c().getCpx(), e.getY() + Camera.c().getCpy());
 
                         if (EditTool.SELECTOR == getEditTool()) {
-                            singleSelection(hasColision(mouseElement));
-                            updateSelectedProperties(stageElements[0]);
+                            selectElementOnStage(hasColision(mouseElement));
                         }
                     }
 
@@ -1440,8 +1488,8 @@ public class Window extends javax.swing.JFrame {
             int px, py;
 
             try {
-                px = Integer.parseInt(tfElPx.getText());
-                py = Integer.parseInt(tfElPy.getText());
+                px = Util.getInt(tfElPx);
+                py = Util.getInt(tfElPy);
 
                 el.setPxy(px, py);
                 el.setName(tfElName.getText());
@@ -1619,6 +1667,21 @@ public class Window extends javax.swing.JFrame {
         }
 
         return EditTool.SELECTOR;
+    }
+
+    private void selectElementOnStage(ElementModel elementModel) {
+        updateSelectedOnTable(elementModel);
+        singleSelection(elementModel);
+        updateSelectedProperties(elementModel);
+
+        //TODO selectionar elemento na tree
+        tableLibrary.clearSelection();
+    }
+
+    private void selectElementOnLibrary(ElementModel elementModel) {
+        selectedElement = elementModel;
+        updateSelectedOnTable(elementModel);
+        tree.clearSelection();
     }
 
     private enum EditTool {
