@@ -6,6 +6,9 @@
 package br.com.mvbos.jegui;
 
 import br.com.mvbos.jeg.element.ElementModel;
+import static br.com.mvbos.jegui.Constants.BACKGROUND;
+import static br.com.mvbos.jegui.Constants.FOREGROUND;
+import static br.com.mvbos.jegui.Constants.STAGE;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,10 +27,6 @@ import java.util.logging.Logger;
  * @author Marcus Becker
  */
 class FileUtil {
-
-    private static final String STAGE = "Stage";
-    private static final String FOREGROUND = "Foreground";
-    private static final String BACKGROUND = "Background";
 
     private static final String LIBRARY_ELEMENTS = "library.temp";
     private static final String SCENE_ELEMENTS = "list.temp";

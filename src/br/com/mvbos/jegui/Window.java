@@ -16,9 +16,12 @@ import br.com.mvbos.jeg.scene.IScene;
 import br.com.mvbos.jegui.ui.tree.ElementMutableTreeNode;
 import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
+import br.com.mvbos.jegui.dialogs.DialogNewImageElement;
 import br.com.mvbos.jegui.el.ButtonElement;
+import br.com.mvbos.jegui.prev.PreviewWindow;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -33,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.table.AbstractTableModel;
@@ -190,6 +194,8 @@ public class Window extends javax.swing.JFrame {
         treeMap.get(parent.toString()).remove(el);
         model.removeNodeFromParent(node);
         tree.updateUI();
+
+        singleSelection(null);
     }
 
     /**
@@ -229,6 +235,7 @@ public class Window extends javax.swing.JFrame {
         tableLibrary = new javax.swing.JTable();
         btnAddNewElement = new javax.swing.JButton();
         btnRemoveElement = new javax.swing.JButton();
+        btnEditElement = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         pnTree = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -466,6 +473,13 @@ public class Window extends javax.swing.JFrame {
 
         btnRemoveElement.setText("-");
 
+        btnEditElement.setText("*");
+        btnEditElement.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditElementActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnLibraryLayout = new javax.swing.GroupLayout(pnLibrary);
         pnLibrary.setLayout(pnLibraryLayout);
         pnLibraryLayout.setHorizontalGroup(
@@ -476,7 +490,9 @@ public class Window extends javax.swing.JFrame {
                 .addComponent(btnAddNewElement)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnRemoveElement)
-                .addContainerGap(216, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnEditElement)
+                .addContainerGap(171, Short.MAX_VALUE))
         );
         pnLibraryLayout.setVerticalGroup(
             pnLibraryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -485,7 +501,8 @@ public class Window extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnLibraryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAddNewElement)
-                    .addComponent(btnRemoveElement))
+                    .addComponent(btnRemoveElement)
+                    .addComponent(btnEditElement))
                 .addContainerGap())
         );
 
@@ -733,6 +750,11 @@ public class Window extends javax.swing.JFrame {
         tfWindowHeight.setText("600");
 
         btnPreview.setText("Preview");
+        btnPreview.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPreviewActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -977,9 +999,9 @@ public class Window extends javax.swing.JFrame {
         dlgTfID.setText(String.valueOf(all.size() + 1));
         dialodNewElement.pack();
         dialodNewElement.setLocationRelativeTo(this);
-        
+
         dialodNewElement.setVisible(true);
-        
+
 
     }//GEN-LAST:event_btnAddNewElementActionPerformed
 
@@ -987,9 +1009,10 @@ public class Window extends javax.swing.JFrame {
 
         ElementModel el = new ElementModel(20, 20, dlgTfName.getText());
         el.setId(Util.getInt(dlgTfID));
-        all.add(el);
+
         dialodNewElement.dispose();
-        tableLibrary.updateUI();
+        openEditElement(el);
+
 
     }//GEN-LAST:event_dlgNewElementOKActionPerformed
 
@@ -998,6 +1021,23 @@ public class Window extends javax.swing.JFrame {
         dialodNewElement.setVisible(false);
 
     }//GEN-LAST:event_dlgNewElementCancelActionPerformed
+
+    private void btnEditElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditElementActionPerformed
+
+        if (selectedElement != null) {
+            openEditElement(selectedElement);
+        }
+
+
+    }//GEN-LAST:event_btnEditElementActionPerformed
+
+    private void btnPreviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPreviewActionPerformed
+
+        JFrame prev = new PreviewWindow(treeMap, new Dimension(Util.getInt(tfWindowWidth), Util.getInt(tfWindowHeight)));
+        prev.setVisible(true);
+
+
+    }//GEN-LAST:event_btnPreviewActionPerformed
 
     private JDialog dialog;
     private JColorChooser colorChooser;
@@ -1009,6 +1049,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JButton btnCanvasColor;
     private javax.swing.JToggleButton btnEdTLHand;
     private javax.swing.JToggleButton btnEdTLSelect;
+    private javax.swing.JButton btnEditElement;
     private javax.swing.JButton btnPreview;
     private javax.swing.JButton btnRemoveElement;
     private javax.swing.JButton btnRemoveElementTree;
@@ -1680,8 +1721,21 @@ public class Window extends javax.swing.JFrame {
 
     private void selectElementOnLibrary(ElementModel elementModel) {
         selectedElement = elementModel;
-        updateSelectedOnTable(elementModel);
+        //updateSelectedOnTable(elementModel);
         tree.clearSelection();
+    }
+
+    private void openEditElement(ElementModel el) {
+        DialogNewImageElement dlg = new DialogNewImageElement(this, true);
+
+        dlg.setElement(el);
+
+        dlg.setVisible(true);
+
+        if (dlg.isOk()) {
+            all.add(dlg.getElement());
+            tableLibrary.updateUI();
+        }
     }
 
     private enum EditTool {

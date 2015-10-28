@@ -38,9 +38,11 @@ public class ColorButtonColumn extends AbstractCellEditor implements TableCellEd
         this.colorSelected = color;
 
         button = new JButton();
+        button.setForeground(Color.WHITE);
 
         if (colorSelected != null) {
             button.setBackground(colorSelected);
+            button.setText(String.format("%d, %d, %d", colorSelected.getRed(), colorSelected.getGreen(), colorSelected.getBlue()));
         }
 
         button.setToolTipText("Change color");
@@ -67,7 +69,10 @@ public class ColorButtonColumn extends AbstractCellEditor implements TableCellEd
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         //System.out.printf("JTable color , value %s, isSelected %s, hasFocus %s, row %s, column %s\n", value, isSelected, hasFocus, row, column);
 
-        button.setBackground((Color) value);
+        Color c = (Color) value;
+
+        button.setBackground(c);
+        button.setText(String.format("%d, %d, %d", c.getRed(), c.getGreen(), c.getBlue()));
 
         return button;
     }
@@ -82,6 +87,8 @@ public class ColorButtonColumn extends AbstractCellEditor implements TableCellEd
     public void actionPerformed(ActionEvent e) {
 
         button.setBackground(colorSelected);
+        button.setText(String.format("%d, %d, %d", colorSelected.getRed(), colorSelected.getGreen(), colorSelected.getBlue()));
+
         colorChooser.setColor(colorSelected);
         dialog.setVisible(true);
 

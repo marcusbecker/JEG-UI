@@ -437,7 +437,9 @@
                                   <Component id="btnAddNewElement" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="btnRemoveElement" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="216" max="32767" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="btnEditElement" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace pref="171" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
@@ -449,6 +451,7 @@
                                   <Group type="103" groupAlignment="3" attributes="0">
                                       <Component id="btnAddNewElement" alignment="3" min="-2" max="-2" attributes="0"/>
                                       <Component id="btnRemoveElement" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="btnEditElement" alignment="3" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
@@ -494,6 +497,14 @@
                           <Properties>
                             <Property name="text" type="java.lang.String" value="-"/>
                           </Properties>
+                        </Component>
+                        <Component class="javax.swing.JButton" name="btnEditElement">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="*"/>
+                          </Properties>
+                          <Events>
+                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnEditElementActionPerformed"/>
+                          </Events>
                         </Component>
                       </SubComponents>
                     </Container>
@@ -896,6 +907,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Preview"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPreviewActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

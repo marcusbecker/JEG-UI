@@ -9,6 +9,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.nio.file.Paths;
 import javax.swing.AbstractCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -42,7 +43,7 @@ public class ImageButtonColumn extends AbstractCellEditor implements TableCellEd
 
             @Override
             public boolean accept(File f) {
-                return f.isDirectory() ||  (f.isFile() && (f.getName().toLowerCase().endsWith(".png") || f.getName().toLowerCase().endsWith(".jpg")));
+                return f.isDirectory() || (f.isFile() && (f.getName().toLowerCase().endsWith(".png") || f.getName().toLowerCase().endsWith(".jpg")));
             }
 
             @Override
@@ -90,6 +91,8 @@ public class ImageButtonColumn extends AbstractCellEditor implements TableCellEd
         if (icon.getDescription() != null) {
             File lastDir = new File(icon.getDescription());
             fc.setCurrentDirectory(lastDir);
+        } else {
+            fc.setCurrentDirectory(new File(Paths.get("").toFile().getAbsolutePath()));
         }
 
         int returnVal = fc.showOpenDialog(null);
