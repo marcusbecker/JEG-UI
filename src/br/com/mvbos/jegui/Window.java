@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.table.AbstractTableModel;
@@ -95,7 +94,9 @@ public class Window extends javax.swing.JFrame {
     }
 
     private void initMyComponents() {
-        Camera.c().config(SCENE_WIDTH, SCENE_HEIGHT);
+        Camera.c().config(SCENE_WIDTH, SCENE_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
+        Camera.c().setAllowOffset(true);
+        
         tfSceneWidth.setText(String.valueOf(SCENE_WIDTH));
         tfSceneHeight.setText(String.valueOf(SCENE_HEIGHT));
 
@@ -263,6 +264,9 @@ public class Window extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         tfWindowHeight = new javax.swing.JTextField();
         btnPreview = new javax.swing.JButton();
+        tfCamInitPx = new javax.swing.JTextField();
+        tfCamInitPy = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
         menuMain = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         mnSave = new javax.swing.JMenuItem();
@@ -609,9 +613,9 @@ public class Window extends javax.swing.JFrame {
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText(",");
 
-        tfSceneWidth.setText("800");
+        tfSceneWidth.setText("1200");
 
-        tfSceneHeight.setText("600");
+        tfSceneHeight.setText("899");
 
         tfCamPx.setText("0");
         tfCamPx.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -756,17 +760,40 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
+        tfCamInitPx.setText("0");
+        tfCamInitPx.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tfCamInitPxKeyReleased(evt);
+            }
+        });
+
+        tfCamInitPy.setText("0");
+        tfCamInitPy.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tfCamInitPyKeyReleased(evt);
+            }
+        });
+
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText(",");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(tfWindowWidth, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(tfWindowWidth, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+                    .addComponent(tfCamInitPx))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tfWindowHeight, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(tfWindowHeight, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+                    .addComponent(tfCamInitPy))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnPreview)
                 .addContainerGap())
@@ -780,7 +807,12 @@ public class Window extends javax.swing.JFrame {
                     .addComponent(tfWindowHeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5)
                     .addComponent(btnPreview))
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tfCamInitPy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tfCamInitPx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout pnBottomLayout = new javax.swing.GroupLayout(pnBottom);
@@ -1033,11 +1065,23 @@ public class Window extends javax.swing.JFrame {
 
     private void btnPreviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPreviewActionPerformed
 
-        JFrame prev = new PreviewWindow(treeMap, new Dimension(Util.getInt(tfWindowWidth), Util.getInt(tfWindowHeight)));
+        Dimension wDim = new Dimension(Util.getInt(tfSceneWidth), Util.getInt(tfSceneHeight));
+        Dimension sDim = new Dimension(Util.getInt(tfWindowWidth), Util.getInt(tfWindowHeight));
+
+        PreviewWindow prev = new PreviewWindow(treeMap, wDim, sDim);
+        prev.setCamPosition(new Point(Util.getInt(tfCamInitPx), Util.getInt(tfCamInitPy)));
         prev.setVisible(true);
 
 
     }//GEN-LAST:event_btnPreviewActionPerformed
+
+    private void tfCamInitPxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfCamInitPxKeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfCamInitPxKeyReleased
+
+    private void tfCamInitPyKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfCamInitPyKeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfCamInitPyKeyReleased
 
     private JDialog dialog;
     private JColorChooser colorChooser;
@@ -1064,6 +1108,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabelID;
     private javax.swing.JLabel jLabelName;
     private javax.swing.JMenu jMenu1;
@@ -1094,6 +1139,8 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JTabbedPane tabLibrary;
     private javax.swing.JTable table;
     private javax.swing.JTable tableLibrary;
+    private javax.swing.JTextField tfCamInitPx;
+    private javax.swing.JTextField tfCamInitPy;
     private javax.swing.JTextField tfCamPx;
     private javax.swing.JTextField tfCamPy;
     private javax.swing.JTextField tfElName;

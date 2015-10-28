@@ -8,15 +8,24 @@ package br.com.mvbos.jegui.prev;
 import br.com.mvbos.jeg.element.ElementModel;
 import br.com.mvbos.jeg.element.ElementMovableModel;
 import br.com.mvbos.jeg.element.IButtonElement;
+import br.com.mvbos.jeg.element.SelectorElement;
+import br.com.mvbos.jeg.engine.GraphicTool;
 import br.com.mvbos.jeg.scene.Click;
 import br.com.mvbos.jeg.scene.IScene;
+import br.com.mvbos.jeg.scene.ISelectorScene;
+import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
 import br.com.mvbos.jeg.window.impl.MemoryImpl;
 import br.com.mvbos.jegui.Constants;
+import br.com.mvbos.jegui.Window;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +43,17 @@ public class PreviewWindow extends javax.swing.JFrame {
     private final BufferedImage buf;
     private final Dimension dim;
 
-    public PreviewWindow(Map<String, List<ElementModel>> lst, Dimension dim) {
+    private final Camera cam = Camera.createNew();
+    private boolean endGame;
 
-        this.dim = dim;
+    private SelectorElement selectorElement = new SelectorElement(Color.WHITE, null);
 
+    public PreviewWindow(Map<String, List<ElementModel>> lst, Dimension sceneDim, Dimension screenDim) {
+
+        this.dim = screenDim;
+        cam.config(sceneDim.width, sceneDim.height, screenDim.width, screenDim.height);
+
+        //cam.offSet(10, 10);
         memo[0] = new MemoryImpl(lst.get(Constants.BACKGROUND).size());
         memo[1] = new MemoryImpl(lst.get(Constants.STAGE).size());
         memo[2] = new MemoryImpl(lst.get(Constants.FOREGROUND).size());
@@ -54,14 +70,14 @@ public class PreviewWindow extends javax.swing.JFrame {
             memo[2].registerElement(e);
         }
 
-        buf = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
+        buf = new BufferedImage(screenDim.width, screenDim.height, BufferedImage.TYPE_INT_RGB);
 
         scene = createScene();
 
         initComponents();
 
         pack();
-        
+
         initGame();
     }
 
@@ -77,6 +93,11 @@ public class PreviewWindow extends javax.swing.JFrame {
         canvas = createCanvas();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         javax.swing.GroupLayout canvasLayout = new javax.swing.GroupLayout(canvas);
         canvas.setLayout(canvasLayout);
@@ -103,17 +124,27 @@ public class PreviewWindow extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+
+        endGame = true;
+
+    }//GEN-LAST:event_formWindowClosing
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel canvas;
     // End of variables declaration//GEN-END:variables
 
     private JPanel createCanvas() {
-        return new JPanel() {
+        canvas = new JPanel() {
 
             @Override
-            protected void paintComponent(Graphics g) {
+            protected void paintComponent(Graphics gg) {
+                Graphics2D g = (Graphics2D) gg;
+
                 g.drawImage(buf, 0, 0, null);
+
+                selectorElement.drawMe(g);
             }
 
             @Override
@@ -122,140 +153,232 @@ public class PreviewWindow extends javax.swing.JFrame {
             }
 
         };
+
+        canvas.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                selectorElement.setEnabled(true);
+                selectorElement.setPxy(e.getX(), e.getY());
+
+                ((ISelectorScene) scene).startSelection(selectorElement);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (selectorElement.isEnabled()) {
+
+                    selectorElement.adjustInvertSelection();
+                    selectorElement.setPx(selectorElement.getPx() + cam.getCpx());
+                    selectorElement.setPy(selectorElement.getPy() + cam.getCpy());
+
+                    ((ISelectorScene) scene).endSelection(selectorElement);
+
+                } else {
+                    ((ISelectorScene) scene).endSelection(null);
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+
+        canvas.addMouseMotionListener(new MouseMotionListener() {
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+                if (selectorElement.isVisible()) {
+                    selectorElement.setWidth(e.getX());
+                    selectorElement.setHeight(e.getY());
+                }
+
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+            }
+
+        });
+
+        return canvas;
     }
+
     private static int i;
 
+    class MyScece implements IScene, ISelectorScene {
+
+        private SelectorElement selector;
+
+        @Override
+        public void update() {
+
+            for (IMemory m : memo) {
+                for (i = 0; i < m.getElementCount(); i++) {
+                    ElementModel el = m.getByElement(i);
+
+                    if (GraphicTool.g().bcollide(el, selector)) {
+                        el.setVisible(false);
+                    } else {
+                        //el.setVisible(true);
+                    }
+
+                    el.update();
+                }
+            }
+            if (selector != null) {
+                selector.setEnabled(false);
+                selector = null;
+            }
+        }
+
+        @Override
+        public void drawElements(Graphics2D g2d) {
+            for (IMemory m : memo) {
+                for (i = 0; i < m.getElementCount(); i++) {
+                    ElementModel el = m.getByElement(i);
+                    //el.drawMe(g2d);
+                    cam.draw(g2d, el);
+                }
+            }
+        }
+
+        @Override
+        public void startSelection(SelectorElement selectorElement) {
+            //this.selector = selectorElement;
+        }
+
+        @Override
+        public void endSelection(SelectorElement selectorElement) {
+            this.selector = selectorElement;
+        }
+
+        @Override
+        public void changeSceneEvent() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void selectElement(ElementModel e) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void focusElement(ElementModel e) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void releaseElement(ElementModel element, ElementModel anotherElement) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void closeWindow() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public boolean startScene() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public IMemory getElements() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void clickElement(int clickCount) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void clickElement(Click m) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void selectElement(ElementModel[] arr) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void mouseMove(ElementModel e, Click m) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void keyEvent(char keyChar, int keyCode) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void keyRelease(char keyChar, int keyCode) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void setTitle(String title) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public String getTitle() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void releaseElement(ElementModel element) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void clickButton(IButtonElement button) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void moveElement(ElementMovableModel selectedMovableElement) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void reflashElementPosition(ElementMovableModel e) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void startGame() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Color getBgColor() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void resizeWindow() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+    }
+
     private IScene createScene() {
-        return new IScene() {
-
-            @Override
-            public void update() {
-                for (IMemory m : memo) {
-                    for (i = 0; i < m.getElementCount(); i++) {
-                        m.getByElement(i).update();
-                    }
-                }
-            }
-
-            @Override
-            public void drawElements(Graphics2D g2d) {
-                for (IMemory m : memo) {
-                    for (i = 0; i < m.getElementCount(); i++) {
-                        m.getByElement(i).drawMe(g2d);
-                    }
-                }
-            }
-
-            @Override
-            public void changeSceneEvent() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void selectElement(ElementModel e) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void focusElement(ElementModel e) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void releaseElement(ElementModel element, ElementModel anotherElement) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void closeWindow() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public boolean startScene() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public IMemory getElements() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void clickElement(int clickCount) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void clickElement(Click m) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void selectElement(ElementModel[] arr) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void mouseMove(ElementModel e, Click m) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void keyEvent(char keyChar, int keyCode) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void keyRelease(char keyChar, int keyCode) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void setTitle(String title) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public String getTitle() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void releaseElement(ElementModel element) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void clickButton(IButtonElement button) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void moveElement(ElementMovableModel selectedMovableElement) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void reflashElementPosition(ElementMovableModel e) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void startGame() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public Color getBgColor() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void resizeWindow() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
+        return new MyScece();
     }
 
     private void initGame() {
@@ -265,7 +388,7 @@ public class PreviewWindow extends javax.swing.JFrame {
             public void run() {
                 long prxAtualizacao = 0;
 
-                while (true) {
+                while (!endGame) {
                     if (System.currentTimeMillis() > prxAtualizacao) {
                         scene.update();
                         scene.drawElements(buf.createGraphics());
@@ -279,5 +402,9 @@ public class PreviewWindow extends javax.swing.JFrame {
 
         }.start();
 
+    }
+
+    public void setCamPosition(Point p) {
+        cam.move(p.x, p.y);
     }
 }
