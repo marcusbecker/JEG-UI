@@ -70,6 +70,15 @@ public class Window extends javax.swing.JFrame {
     private static final int SCREEN_WIDTH = 991;
     private static final int SCREEN_HEIGHT = 743;
 
+    private int id = 1;
+    private Point mousePos = new Point();
+    private Point startDrag;
+
+    private final ElementModel[] stageElements = new ElementModel[30];
+
+    private final ElementModel mouseElement = new ElementModel(10, 10, "mouseElement");
+    private short menuOldSize = 350;
+
     /**
      * Creates new form Window
      */
@@ -96,7 +105,7 @@ public class Window extends javax.swing.JFrame {
     private void initMyComponents() {
         Camera.c().config(SCENE_WIDTH, SCENE_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
         Camera.c().setAllowOffset(true);
-        
+
         tfSceneWidth.setText(String.valueOf(SCENE_WIDTH));
         tfSceneHeight.setText(String.valueOf(SCENE_HEIGHT));
 
@@ -225,7 +234,7 @@ public class Window extends javax.swing.JFrame {
         btnEdTLSelect = new javax.swing.JToggleButton();
         btnEdTLHand = new javax.swing.JToggleButton();
         pnBody = new javax.swing.JPanel();
-        jSplitPane1 = new javax.swing.JSplitPane();
+        splitPane = new javax.swing.JSplitPane();
         pnCanvas = createCanvas();
         pnMenu = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -362,6 +371,11 @@ public class Window extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                formComponentResized(evt);
+            }
+        });
 
         pnHead.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -422,7 +436,12 @@ public class Window extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jSplitPane1.setDividerLocation(700);
+        splitPane.setDividerLocation(700);
+        splitPane.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                splitPanePropertyChange(evt);
+            }
+        });
 
         pnCanvas.setBackground(new java.awt.Color(0, 0, 0));
 
@@ -437,7 +456,7 @@ public class Window extends javax.swing.JFrame {
             .addGap(0, 765, Short.MAX_VALUE)
         );
 
-        jSplitPane1.setLeftComponent(pnCanvas);
+        splitPane.setLeftComponent(pnCanvas);
 
         table.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jScrollPane1.setViewportView(table);
@@ -585,17 +604,17 @@ public class Window extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jSplitPane1.setRightComponent(pnMenu);
+        splitPane.setRightComponent(pnMenu);
 
         javax.swing.GroupLayout pnBodyLayout = new javax.swing.GroupLayout(pnBody);
         pnBody.setLayout(pnBodyLayout);
         pnBodyLayout.setHorizontalGroup(
             pnBodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1)
+            .addComponent(splitPane)
         );
         pnBodyLayout.setVerticalGroup(
             pnBodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1)
+            .addComponent(splitPane)
         );
 
         jButton1.setText("jButton1");
@@ -1083,6 +1102,23 @@ public class Window extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_tfCamInitPyKeyReleased
 
+    private void splitPanePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_splitPanePropertyChange
+
+        //menuOldSize = (short) splitPane.getBottomComponent().getWidth();
+        //System.out.println("menuOldSize " + menuOldSize);
+
+    }//GEN-LAST:event_splitPanePropertyChange
+
+    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
+
+        splitPane.setDividerLocation(getWidth() - menuOldSize);
+        //System.out.println("menuOldSize " + menuOldSize);
+        //System.out.println("splitPane.getWidth() " + getWidth());
+        //splitPane.setDividerLocation(splitPane.getWidth() - menuOldSize);
+        //splitPane.getBottomComponent().setSize(menuOldSize, splitPane.getBottomComponent().getHeight());
+
+    }//GEN-LAST:event_formComponentResized
+
     private JDialog dialog;
     private JColorChooser colorChooser;
 
@@ -1118,7 +1154,6 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JLabel lblCanvasInfo;
     private javax.swing.JMenuBar menuMain;
     private javax.swing.JMenuItem mnSave;
@@ -1136,6 +1171,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JRadioButton radioTypeImage;
     private javax.swing.JRadioButton radioTypeSprite;
     private javax.swing.JRadioButton radioTypeText;
+    private javax.swing.JSplitPane splitPane;
     private javax.swing.JTabbedPane tabLibrary;
     private javax.swing.JTable table;
     private javax.swing.JTable tableLibrary;
@@ -1186,8 +1222,6 @@ public class Window extends javax.swing.JFrame {
 
     }
 
-    private int id = 1;
-
     private ElementModel copy(float px, float py, ElementModel source) {
         ElementModel el = new ElementModel(px, py, source.getWidth(), source.getHeight(), id + " " + source.getName());
         el.setId(id++);
@@ -1196,13 +1230,6 @@ public class Window extends javax.swing.JFrame {
 
         return el;
     }
-
-    private Point mousePos = new Point();
-    private Point startDrag;
-
-    private ElementModel[] stageElements = new ElementModel[30];
-
-    private final ElementModel mouseElement = new ElementModel(10, 10, "mouseElement");
 
     private ElementModel hasColision(ElementModel element) {
 
@@ -1701,7 +1728,7 @@ public class Window extends javax.swing.JFrame {
     }
 
     private void singleSelection(ElementModel elementModel) {
-        for (int i = 0; i < stageElements.length; i++) {
+        for (int i = 1; i < stageElements.length; i++) {
             stageElements[i] = null;
 
         }
