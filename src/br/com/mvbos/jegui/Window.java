@@ -79,6 +79,8 @@ public class Window extends javax.swing.JFrame {
     private final ElementModel mouseElement = new ElementModel(10, 10, "mouseElement");
     private short menuOldSize = 350;
 
+    private boolean invertColor;
+
     /**
      * Creates new form Window
      */
@@ -276,6 +278,7 @@ public class Window extends javax.swing.JFrame {
         tfCamInitPx = new javax.swing.JTextField();
         tfCamInitPy = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox();
         menuMain = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         mnSave = new javax.swing.JMenuItem();
@@ -515,7 +518,7 @@ public class Window extends javax.swing.JFrame {
                 .addComponent(btnRemoveElement)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnEditElement)
-                .addContainerGap(171, Short.MAX_VALUE))
+                .addContainerGap(183, Short.MAX_VALUE))
         );
         pnLibraryLayout.setVerticalGroup(
             pnLibraryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -535,7 +538,7 @@ public class Window extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 314, Short.MAX_VALUE)
+            .addGap(0, 326, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -796,6 +799,8 @@ public class Window extends javax.swing.JFrame {
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText(",");
 
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "DefaulScene", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -811,12 +816,20 @@ public class Window extends javax.swing.JFrame {
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tfWindowHeight, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
-                    .addComponent(tfCamInitPy))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnPreview)
-                .addContainerGap())
+                    .addComponent(tfCamInitPy, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tfWindowHeight, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(7, 7, 7)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnPreview)))
+                .addGap(15, 15, 15))
         );
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {tfCamInitPx, tfCamInitPy, tfWindowHeight, tfWindowWidth});
+
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -830,9 +843,12 @@ public class Window extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tfCamInitPy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tfCamInitPx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
+                    .addComponent(jLabel6)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(13, Short.MAX_VALUE))
         );
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {tfCamInitPx, tfCamInitPy, tfWindowHeight, tfWindowWidth});
 
         javax.swing.GroupLayout pnBottomLayout = new javax.swing.GroupLayout(pnBottom);
         pnBottom.setLayout(pnBottomLayout);
@@ -846,8 +862,8 @@ public class Window extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pnElementPosition, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addComponent(jButton1)
                         .addGap(130, 130, 130))
                     .addGroup(pnBottomLayout.createSequentialGroup()
@@ -944,15 +960,20 @@ public class Window extends javax.swing.JFrame {
         if (dialog == null) {
             colorChooser = new JColorChooser();
             ActionListener ac = new ActionListener() {
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     pnCanvas.setBackground(colorChooser.getColor());
                     btnCanvasColor.setBackground(pnCanvas.getBackground());
 
                     Color x = colorChooser.getColor();
-                    Color c = (x.getRed() + x.getGreen() + x.getBlue()) / 3 < 127 ? Color.WHITE : Color.BLACK;
 
-                    selector.setColor(c);
+                    if (invertColor) {
+                        Color c = (x.getRed() + x.getGreen() + x.getBlue()) / 3 < 127 ? Color.WHITE : Color.BLACK;
+                        selector.setColor(c);
+                    } else {
+                        selector.setColor(x);
+                    }
                 }
             };
 
@@ -1140,6 +1161,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JTextField dlgTfID;
     private javax.swing.JTextField dlgTfName;
     private javax.swing.JButton jButton1;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1621,23 +1643,11 @@ public class Window extends javax.swing.JFrame {
         return new IScene() {
 
             @Override
-            public void update() {
+            public void updateScene() {
             }
 
             @Override
             public void changeSceneEvent() {
-            }
-
-            @Override
-            public void selectElement(ElementModel e) {
-            }
-
-            @Override
-            public void focusElement(ElementModel e) {
-            }
-
-            @Override
-            public void releaseElement(ElementModel element, ElementModel anotherElement) {
             }
 
             @Override
@@ -1650,36 +1660,8 @@ public class Window extends javax.swing.JFrame {
             }
 
             @Override
-            public IMemory getElements() {
+            public IMemory[] getElements() {
                 return null;
-            }
-
-            @Override
-            public void clickElement(int clickCount) {
-            }
-
-            @Override
-            public void clickElement(Click m) {
-            }
-
-            @Override
-            public void selectElement(ElementModel[] arr) {
-            }
-
-            @Override
-            public void mouseMove(ElementModel e, Click m) {
-            }
-
-            @Override
-            public void keyEvent(char keyChar, int keyCode) {
-            }
-
-            @Override
-            public void keyRelease(char keyChar, int keyCode) {
-            }
-
-            @Override
-            public void setTitle(String title) {
             }
 
             @Override
@@ -1688,11 +1670,7 @@ public class Window extends javax.swing.JFrame {
             }
 
             @Override
-            public void releaseElement(ElementModel element) {
-            }
-
-            @Override
-            public void drawElements(Graphics2D g) {
+            public void drawScene(Graphics2D g) {
                 for (String k : treeMap.keySet()) {
                     for (ElementModel el : treeMap.get(k)) {
                         el.drawMe(g);
@@ -1701,29 +1679,25 @@ public class Window extends javax.swing.JFrame {
             }
 
             @Override
-            public void clickButton(IButtonElement button) {
+            public void setElements(IMemory[] memory) {
+
             }
 
             @Override
-            public void moveElement(ElementMovableModel selectedMovableElement) {
+            public void focusWindow() {
+
             }
 
             @Override
-            public void reflashElementPosition(ElementMovableModel e) {
+            public void lostFocusWindow() {
+
             }
 
             @Override
-            public void startGame() {
+            public void resizeWindow(int width, int height) {
+
             }
 
-            @Override
-            public Color getBgColor() {
-                return null;
-            }
-
-            @Override
-            public void resizeWindow() {
-            }
         };
     }
 

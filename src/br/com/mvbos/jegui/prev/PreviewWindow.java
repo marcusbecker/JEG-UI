@@ -223,7 +223,7 @@ public class PreviewWindow extends javax.swing.JFrame {
         private SelectorElement selector;
 
         @Override
-        public void update() {
+        public void updateScene() {
 
             for (IMemory m : memo) {
                 for (i = 0; i < m.getElementCount(); i++) {
@@ -245,7 +245,7 @@ public class PreviewWindow extends javax.swing.JFrame {
         }
 
         @Override
-        public void drawElements(Graphics2D g2d) {
+        public void drawScene(Graphics2D g2d) {
             for (IMemory m : memo) {
                 for (i = 0; i < m.getElementCount(); i++) {
                     ElementModel el = m.getByElement(i);
@@ -266,72 +266,17 @@ public class PreviewWindow extends javax.swing.JFrame {
         }
 
         @Override
-        public void changeSceneEvent() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void selectElement(ElementModel e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void focusElement(ElementModel e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void releaseElement(ElementModel element, ElementModel anotherElement) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void closeWindow() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
         public boolean startScene() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public IMemory getElements() {
+        public IMemory[] getElements() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public void clickElement(int clickCount) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void clickElement(Click m) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void selectElement(ElementModel[] arr) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void mouseMove(ElementModel e, Click m) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void keyEvent(char keyChar, int keyCode) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void keyRelease(char keyChar, int keyCode) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void setTitle(String title) {
+        public void setElements(IMemory[] memory) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
@@ -341,40 +286,29 @@ public class PreviewWindow extends javax.swing.JFrame {
         }
 
         @Override
-        public void releaseElement(ElementModel element) {
+        public void changeSceneEvent() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public void clickButton(IButtonElement button) {
+        public void focusWindow() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public void moveElement(ElementMovableModel selectedMovableElement) {
+        public void lostFocusWindow() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public void reflashElementPosition(ElementMovableModel e) {
+        public void closeWindow() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public void startGame() {
+        public void resizeWindow(int width, int height) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
-
-        @Override
-        public Color getBgColor() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void resizeWindow() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
     }
 
     private IScene createScene() {
@@ -390,8 +324,8 @@ public class PreviewWindow extends javax.swing.JFrame {
 
                 while (!endGame) {
                     if (System.currentTimeMillis() > prxAtualizacao) {
-                        scene.update();
-                        scene.drawElements(buf.createGraphics());
+                        scene.updateScene();
+                        scene.drawScene(buf.createGraphics());
 
                         canvas.repaint();
 
