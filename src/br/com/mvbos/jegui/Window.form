@@ -18,20 +18,22 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="dlgTfID" max="32767" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="jLabelName" min="-2" pref="116" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="dlgTfName" pref="177" max="32767" attributes="0"/>
-                      </Group>
-                      <Component id="radioTypeImage" alignment="0" max="32767" attributes="0"/>
-                      <Component id="radioTypeSprite" max="32767" attributes="0"/>
-                      <Component id="radioTypeText" alignment="0" max="32767" attributes="0"/>
-                      <Component id="radioTypeButton" alignment="1" max="32767" attributes="0"/>
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           <Component id="dlgNewElementOK" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="dlgNewElementCancel" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jLabelName" min="-2" pref="116" max="-2" attributes="0"/>
+                              <Component id="jLabelType" alignment="0" min="-2" pref="116" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="cbNewElementType" max="32767" attributes="0"/>
+                              <Component id="dlgTfName" pref="177" max="32767" attributes="0"/>
+                          </Group>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -51,20 +53,17 @@
                       <Component id="jLabelName" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="dlgTfName" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="radioTypeImage" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="radioTypeSprite" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="radioTypeText" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="radioTypeButton" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="cbNewElementType" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabelType" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="dlgNewElementOK" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="dlgNewElementCancel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="16" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -80,6 +79,11 @@
             <Property name="text" type="java.lang.String" value="Name:"/>
           </Properties>
         </Component>
+        <Component class="javax.swing.JLabel" name="jLabelType">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Type:"/>
+          </Properties>
+        </Component>
         <Component class="javax.swing.JTextField" name="dlgTfID">
           <Properties>
             <Property name="text" type="java.lang.String" value="1"/>
@@ -88,39 +92,6 @@
         <Component class="javax.swing.JTextField" name="dlgTfName">
           <Properties>
             <Property name="text" type="java.lang.String" value="Element"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="radioTypeImage">
-          <Properties>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="buttonGroupType"/>
-            </Property>
-            <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Image / Block"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="radioTypeSprite">
-          <Properties>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="buttonGroupType"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Sprite / Tiles"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="radioTypeText">
-          <Properties>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="buttonGroupType"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Text"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="radioTypeButton">
-          <Properties>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="buttonGroupType"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Button"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="dlgNewElementCancel">
@@ -139,10 +110,18 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dlgNewElementOKActionPerformed"/>
           </Events>
         </Component>
+        <Component class="javax.swing.JComboBox" name="cbNewElementType">
+          <Properties>
+            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="new DefaultComboBoxModel(App.jarUtil.getElements().toArray())" type="code"/>
+            </Property>
+            <Property name="renderer" type="javax.swing.ListCellRenderer" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="new DefaultListCellRenderer() {&#xa;&#xa;            @Override&#xa;            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {&#xa;                Object item = value.getClass().getSimpleName();&#xa;&#xa;                return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);&#xa;            }&#xa;        }" type="code"/>
+            </Property>
+          </Properties>
+        </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroupType">
-    </Component>
     <Menu class="javax.swing.JMenuBar" name="menuMain">
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="jMenu1">

@@ -7,17 +7,15 @@ package br.com.mvbos.jegui;
 
 import br.com.mvbos.jegui.ui.table.PropertyElementTable;
 import br.com.mvbos.jeg.element.ElementModel;
-import br.com.mvbos.jeg.element.ElementMovableModel;
-import br.com.mvbos.jeg.element.IButtonElement;
 import br.com.mvbos.jeg.element.SelectorElement;
 import br.com.mvbos.jeg.engine.GraphicTool;
-import br.com.mvbos.jeg.scene.Click;
 import br.com.mvbos.jeg.scene.IScene;
 import br.com.mvbos.jegui.ui.tree.ElementMutableTreeNode;
 import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
 import br.com.mvbos.jegui.dialogs.DialogNewImageElement;
 import br.com.mvbos.jegui.el.ButtonElement;
+import br.com.mvbos.jegui.external.JartUtil;
 import br.com.mvbos.jegui.prev.PreviewWindow;
 import java.awt.Color;
 import java.awt.Component;
@@ -32,10 +30,14 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.table.AbstractTableModel;
@@ -81,9 +83,6 @@ public class Window extends javax.swing.JFrame {
 
     private boolean invertColor;
 
-    /**
-     * Creates new form Window
-     */
     public Window() {
 
         selector.setColor(Color.WHITE);
@@ -94,10 +93,13 @@ public class Window extends javax.swing.JFrame {
 
          temp = new ElementModel(15, 15, "Bloco");
          all.add(temp);*/
+        //
+        //
         initComponents();
 
         root = new DefaultMutableTreeNode("Memory");
 
+        //
         initMyComponents();
 
         iniciaAnimacao();
@@ -222,15 +224,12 @@ public class Window extends javax.swing.JFrame {
         dialodNewElement = new javax.swing.JFrame();
         jLabelID = new javax.swing.JLabel();
         jLabelName = new javax.swing.JLabel();
+        jLabelType = new javax.swing.JLabel();
         dlgTfID = new javax.swing.JTextField();
         dlgTfName = new javax.swing.JTextField();
-        radioTypeImage = new javax.swing.JRadioButton();
-        radioTypeSprite = new javax.swing.JRadioButton();
-        radioTypeText = new javax.swing.JRadioButton();
-        radioTypeButton = new javax.swing.JRadioButton();
         dlgNewElementCancel = new javax.swing.JButton();
         dlgNewElementOK = new javax.swing.JButton();
-        buttonGroupType = new javax.swing.ButtonGroup();
+        cbNewElementType = new javax.swing.JComboBox();
         pnHead = new javax.swing.JPanel();
         pnEditTools = new javax.swing.JPanel();
         btnEdTLSelect = new javax.swing.JToggleButton();
@@ -290,22 +289,11 @@ public class Window extends javax.swing.JFrame {
 
         jLabelName.setText("Name:");
 
+        jLabelType.setText("Type:");
+
         dlgTfID.setText("1");
 
         dlgTfName.setText("Element");
-
-        buttonGroupType.add(radioTypeImage);
-        radioTypeImage.setSelected(true);
-        radioTypeImage.setText("Image / Block");
-
-        buttonGroupType.add(radioTypeSprite);
-        radioTypeSprite.setText("Sprite / Tiles");
-
-        buttonGroupType.add(radioTypeText);
-        radioTypeText.setText("Text");
-
-        buttonGroupType.add(radioTypeButton);
-        radioTypeButton.setText("Button");
 
         dlgNewElementCancel.setText("Cancel");
         dlgNewElementCancel.addActionListener(new java.awt.event.ActionListener() {
@@ -321,6 +309,17 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
+        cbNewElementType.setModel(new DefaultComboBoxModel(App.jarUtil.getElements().toArray()));
+        cbNewElementType.setRenderer(new DefaultListCellRenderer() {
+
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Object item = value.getClass().getSimpleName();
+
+                return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);
+            }
+        });
+
         javax.swing.GroupLayout dialodNewElementLayout = new javax.swing.GroupLayout(dialodNewElement.getContentPane());
         dialodNewElement.getContentPane().setLayout(dialodNewElementLayout);
         dialodNewElementLayout.setHorizontalGroup(
@@ -332,19 +331,19 @@ public class Window extends javax.swing.JFrame {
                         .addComponent(jLabelID, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dlgTfID))
-                    .addGroup(dialodNewElementLayout.createSequentialGroup()
-                        .addComponent(jLabelName, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dlgTfName, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE))
-                    .addComponent(radioTypeImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(radioTypeSprite, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(radioTypeText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(radioTypeButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dialodNewElementLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(dlgNewElementOK)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dlgNewElementCancel)))
+                        .addComponent(dlgNewElementCancel))
+                    .addGroup(dialodNewElementLayout.createSequentialGroup()
+                        .addGroup(dialodNewElementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabelName, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabelType, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(dialodNewElementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cbNewElementType, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(dlgTfName, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         dialodNewElementLayout.setVerticalGroup(
@@ -358,19 +357,15 @@ public class Window extends javax.swing.JFrame {
                 .addGroup(dialodNewElementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelName)
                     .addComponent(dlgTfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(radioTypeImage)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radioTypeSprite)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radioTypeText)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(radioTypeButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(dialodNewElementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbNewElementType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelType))
+                .addGap(18, 18, 18)
                 .addGroup(dialodNewElementLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dlgNewElementOK)
                     .addComponent(dlgNewElementCancel))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -1028,11 +1023,15 @@ public class Window extends javax.swing.JFrame {
     }//GEN-LAST:event_tfElPxKeyReleased
 
     private void tfElPyKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfElPyKeyReleased
+
         setNewPxy();
+
     }//GEN-LAST:event_tfElPyKeyReleased
 
     private void tfElNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfElNameKeyReleased
+
         setNewPxy();
+
     }//GEN-LAST:event_tfElNameKeyReleased
 
     private void tfCamPxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfCamPxKeyReleased
@@ -1057,7 +1056,6 @@ public class Window extends javax.swing.JFrame {
 
         selEditTool((JToggleButton) evt.getSource());
 
-
     }//GEN-LAST:event_btnEdTLSelectActionPerformed
 
     private void btnEdTLHandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEdTLHandActionPerformed
@@ -1074,32 +1072,13 @@ public class Window extends javax.swing.JFrame {
 
         dialodNewElement.setVisible(true);
 
-
     }//GEN-LAST:event_btnAddNewElementActionPerformed
-
-    private void dlgNewElementOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlgNewElementOKActionPerformed
-
-        ElementModel el = new ElementModel(20, 20, dlgTfName.getText());
-        el.setId(Util.getInt(dlgTfID));
-
-        dialodNewElement.dispose();
-        openEditElement(el);
-
-
-    }//GEN-LAST:event_dlgNewElementOKActionPerformed
-
-    private void dlgNewElementCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlgNewElementCancelActionPerformed
-
-        dialodNewElement.setVisible(false);
-
-    }//GEN-LAST:event_dlgNewElementCancelActionPerformed
 
     private void btnEditElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditElementActionPerformed
 
         if (selectedElement != null) {
             openEditElement(selectedElement);
         }
-
 
     }//GEN-LAST:event_btnEditElementActionPerformed
 
@@ -1111,7 +1090,6 @@ public class Window extends javax.swing.JFrame {
         PreviewWindow prev = new PreviewWindow(treeMap, wDim, sDim);
         prev.setCamPosition(new Point(Util.getInt(tfCamInitPx), Util.getInt(tfCamInitPy)));
         prev.setVisible(true);
-
 
     }//GEN-LAST:event_btnPreviewActionPerformed
 
@@ -1140,6 +1118,22 @@ public class Window extends javax.swing.JFrame {
 
     }//GEN-LAST:event_formComponentResized
 
+    private void dlgNewElementOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlgNewElementOKActionPerformed
+
+        ElementModel el = new ElementModel(20, 20, dlgTfName.getText());
+        el.setId(Util.getInt(dlgTfID));
+
+        dialodNewElement.dispose();
+        openEditElement(el);
+
+    }//GEN-LAST:event_dlgNewElementOKActionPerformed
+
+    private void dlgNewElementCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlgNewElementCancelActionPerformed
+
+        dialodNewElement.setVisible(false);
+
+    }//GEN-LAST:event_dlgNewElementCancelActionPerformed
+
     private JDialog dialog;
     private JColorChooser colorChooser;
 
@@ -1154,7 +1148,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JButton btnPreview;
     private javax.swing.JButton btnRemoveElement;
     private javax.swing.JButton btnRemoveElementTree;
-    private javax.swing.ButtonGroup buttonGroupType;
+    private javax.swing.JComboBox cbNewElementType;
     private javax.swing.JFrame dialodNewElement;
     private javax.swing.JButton dlgNewElementCancel;
     private javax.swing.JButton dlgNewElementOK;
@@ -1169,6 +1163,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabelID;
     private javax.swing.JLabel jLabelName;
+    private javax.swing.JLabel jLabelType;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JPanel jPanel1;
@@ -1189,10 +1184,6 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JPanel pnMenu;
     private javax.swing.JPanel pnScreenCam;
     private javax.swing.JPanel pnTree;
-    private javax.swing.JRadioButton radioTypeButton;
-    private javax.swing.JRadioButton radioTypeImage;
-    private javax.swing.JRadioButton radioTypeSprite;
-    private javax.swing.JRadioButton radioTypeText;
     private javax.swing.JSplitPane splitPane;
     private javax.swing.JTabbedPane tabLibrary;
     private javax.swing.JTable table;
