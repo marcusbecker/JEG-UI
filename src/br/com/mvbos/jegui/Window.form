@@ -116,7 +116,7 @@
               <Connection code="new DefaultComboBoxModel(App.jarUtil.getElements().toArray())" type="code"/>
             </Property>
             <Property name="renderer" type="javax.swing.ListCellRenderer" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="new DefaultListCellRenderer() {&#xa;&#xa;            @Override&#xa;            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {&#xa;                Object item = value.getClass().getSimpleName();&#xa;&#xa;                return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);&#xa;            }&#xa;        }" type="code"/>
+              <Connection code="new DefaultListCellRenderer() {&#xa;&#xa;            @Override&#xa;            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {&#xa;                String item = ((Class&lt;? extends ElementModel&gt;)value).getSimpleName();&#xa;&#xa;                return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);&#xa;            }&#xa;        }" type="code"/>
             </Property>
           </Properties>
         </Component>
@@ -862,7 +862,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
-                              <Component id="jComboBox1" min="-2" pref="242" max="-2" attributes="0"/>
+                              <Component id="cbScenePreview" min="-2" pref="242" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
@@ -888,7 +888,7 @@
                           <Component id="tfCamInitPy" linkSize="9" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="tfCamInitPx" linkSize="9" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jComboBox1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="cbScenePreview" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="13" max="32767" attributes="0"/>
                   </Group>
@@ -942,15 +942,13 @@
                 <Property name="text" type="java.lang.String" value=","/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JComboBox" name="jComboBox1">
+            <Component class="javax.swing.JComboBox" name="cbScenePreview">
               <Properties>
-                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="4">
-                    <StringItem index="0" value="DefaulScene"/>
-                    <StringItem index="1" value="Item 2"/>
-                    <StringItem index="2" value="Item 3"/>
-                    <StringItem index="3" value="Item 4"/>
-                  </StringArray>
+                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new DefaultComboBoxModel(App.jarUtil.getScenes().toArray())" type="code"/>
+                </Property>
+                <Property name="renderer" type="javax.swing.ListCellRenderer" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new DefaultListCellRenderer() {&#xa;&#xa;            @Override&#xa;            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {&#xa;                String item = ((Class&lt;? extends IScene&gt;)value).getSimpleName();&#xa;&#xa;                return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);&#xa;            }&#xa;        }" type="code"/>
                 </Property>
               </Properties>
             </Component>

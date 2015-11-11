@@ -6,18 +6,14 @@
 package br.com.mvbos.jegui.prev;
 
 import br.com.mvbos.jeg.element.ElementModel;
-import br.com.mvbos.jeg.element.ElementMovableModel;
-import br.com.mvbos.jeg.element.IButtonElement;
 import br.com.mvbos.jeg.element.SelectorElement;
-import br.com.mvbos.jeg.engine.GraphicTool;
-import br.com.mvbos.jeg.scene.Click;
+import br.com.mvbos.jeg.engine.JPad;
 import br.com.mvbos.jeg.scene.IScene;
 import br.com.mvbos.jeg.scene.ISelectorScene;
 import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
 import br.com.mvbos.jeg.window.impl.MemoryImpl;
 import br.com.mvbos.jegui.Constants;
-import br.com.mvbos.jegui.Window;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -43,15 +39,16 @@ public class PreviewWindow extends javax.swing.JFrame {
     private final BufferedImage buf;
     private final Dimension dim;
 
-    private final Camera cam = Camera.createNew();
     private boolean endGame;
 
     private SelectorElement selectorElement = new SelectorElement(Color.WHITE, null);
 
-    public PreviewWindow(Map<String, List<ElementModel>> lst, Dimension sceneDim, Dimension screenDim) {
+    public PreviewWindow(IScene scene, Map<String, List<ElementModel>> lst, Dimension sceneDim, Dimension screenDim) {
 
+        this.scene = scene;
         this.dim = screenDim;
-        cam.config(sceneDim.width, sceneDim.height, screenDim.width, screenDim.height);
+
+        Camera.c().config(sceneDim.width, sceneDim.height, screenDim.width, screenDim.height);
 
         //cam.offSet(10, 10);
         memo[0] = new MemoryImpl(lst.get(Constants.BACKGROUND).size());
@@ -72,7 +69,9 @@ public class PreviewWindow extends javax.swing.JFrame {
 
         buf = new BufferedImage(screenDim.width, screenDim.height, BufferedImage.TYPE_INT_RGB);
 
-        scene = createScene();
+        //scene = createScene();
+        scene.setElements(memo);
+        scene.startScene();
 
         initComponents();
 
@@ -158,7 +157,7 @@ public class PreviewWindow extends javax.swing.JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-
+                JPad.p1().click(e.getX(), e.getY(), e.getButton(), e.getClickCount());
             }
 
             @Override
@@ -166,21 +165,26 @@ public class PreviewWindow extends javax.swing.JFrame {
                 selectorElement.setEnabled(true);
                 selectorElement.setPxy(e.getX(), e.getY());
 
-                ((ISelectorScene) scene).startSelection(selectorElement);
+                if (scene instanceof ISelectorScene) {
+                    ((ISelectorScene) scene).startSelection(selectorElement);
+                }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (selectorElement.isEnabled()) {
 
-                    selectorElement.adjustInvertSelection();
-                    selectorElement.setPx(selectorElement.getPx() + cam.getCpx());
-                    selectorElement.setPy(selectorElement.getPy() + cam.getCpy());
+                if (scene instanceof ISelectorScene) {
+                    if (selectorElement.isEnabled()) {
 
-                    ((ISelectorScene) scene).endSelection(selectorElement);
+                        selectorElement.adjustInvertSelection();
+                        selectorElement.setPx(selectorElement.getPx() + Camera.c().getCpx());
+                        selectorElement.setPy(selectorElement.getPy() + Camera.c().getCpy());
 
-                } else {
-                    ((ISelectorScene) scene).endSelection(null);
+                        ((ISelectorScene) scene).endSelection(selectorElement);
+
+                    } else {
+                        ((ISelectorScene) scene).endSelection(null);
+                    }
                 }
             }
 
@@ -216,103 +220,8 @@ public class PreviewWindow extends javax.swing.JFrame {
         return canvas;
     }
 
-    private static int i;
-
-    class MyScece implements IScene, ISelectorScene {
-
-        private SelectorElement selector;
-
-        @Override
-        public void updateScene() {
-
-            for (IMemory m : memo) {
-                for (i = 0; i < m.getElementCount(); i++) {
-                    ElementModel el = m.getByElement(i);
-
-                    if (GraphicTool.g().bcollide(el, selector)) {
-                        el.setVisible(false);
-                    } else {
-                        //el.setVisible(true);
-                    }
-
-                    el.update();
-                }
-            }
-            if (selector != null) {
-                selector.setEnabled(false);
-                selector = null;
-            }
-        }
-
-        @Override
-        public void drawScene(Graphics2D g2d) {
-            for (IMemory m : memo) {
-                for (i = 0; i < m.getElementCount(); i++) {
-                    ElementModel el = m.getByElement(i);
-                    //el.drawMe(g2d);
-                    cam.draw(g2d, el);
-                }
-            }
-        }
-
-        @Override
-        public void startSelection(SelectorElement selectorElement) {
-            //this.selector = selectorElement;
-        }
-
-        @Override
-        public void endSelection(SelectorElement selectorElement) {
-            this.selector = selectorElement;
-        }
-
-        @Override
-        public boolean startScene() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public IMemory[] getElements() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void setElements(IMemory[] memory) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public String getTitle() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void changeSceneEvent() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void focusWindow() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void lostFocusWindow() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void closeWindow() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void resizeWindow(int width, int height) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-    }
-
     private IScene createScene() {
-        return new MyScece();
+        return new MyScece(memo);
     }
 
     private void initGame() {
@@ -339,6 +248,6 @@ public class PreviewWindow extends javax.swing.JFrame {
     }
 
     public void setCamPosition(Point p) {
-        cam.move(p.x, p.y);
+        Camera.c().move(p.x, p.y);
     }
 }

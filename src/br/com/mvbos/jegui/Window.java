@@ -15,7 +15,6 @@ import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
 import br.com.mvbos.jegui.dialogs.DialogNewImageElement;
 import br.com.mvbos.jegui.el.ButtonElement;
-import br.com.mvbos.jegui.external.JartUtil;
 import br.com.mvbos.jegui.prev.PreviewWindow;
 import java.awt.Color;
 import java.awt.Component;
@@ -30,7 +29,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
@@ -52,6 +50,7 @@ import javax.swing.tree.TreePath;
  */
 public class Window extends javax.swing.JFrame {
 
+    private final Camera cam = Camera.createNew();
     private final PropertyElementTable elementTable = new PropertyElementTable();
 
     private final List<ElementModel> all = FileUtil.loadLib();
@@ -107,8 +106,8 @@ public class Window extends javax.swing.JFrame {
     }
 
     private void initMyComponents() {
-        Camera.c().config(SCENE_WIDTH, SCENE_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
-        Camera.c().setAllowOffset(true);
+        cam.config(SCENE_WIDTH, SCENE_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
+        cam.setAllowOffset(true);
 
         tfSceneWidth.setText(String.valueOf(SCENE_WIDTH));
         tfSceneHeight.setText(String.valueOf(SCENE_HEIGHT));
@@ -277,7 +276,7 @@ public class Window extends javax.swing.JFrame {
         tfCamInitPx = new javax.swing.JTextField();
         tfCamInitPy = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox();
+        cbScenePreview = new javax.swing.JComboBox();
         menuMain = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         mnSave = new javax.swing.JMenuItem();
@@ -314,7 +313,7 @@ public class Window extends javax.swing.JFrame {
 
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Object item = value.getClass().getSimpleName();
+                String item = ((Class<? extends ElementModel>)value).getSimpleName();
 
                 return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);
             }
@@ -794,7 +793,16 @@ public class Window extends javax.swing.JFrame {
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText(",");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "DefaulScene", "Item 2", "Item 3", "Item 4" }));
+        cbScenePreview.setModel(new DefaultComboBoxModel(App.jarUtil.getScenes().toArray()));
+        cbScenePreview.setRenderer(new DefaultListCellRenderer() {
+
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                String item = ((Class<? extends IScene>)value).getSimpleName();
+
+                return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -816,7 +824,7 @@ public class Window extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(7, 7, 7)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(cbScenePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnPreview)))
@@ -839,7 +847,7 @@ public class Window extends javax.swing.JFrame {
                     .addComponent(tfCamInitPy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tfCamInitPx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbScenePreview, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(13, Short.MAX_VALUE))
         );
 
@@ -1087,7 +1095,9 @@ public class Window extends javax.swing.JFrame {
         Dimension wDim = new Dimension(Util.getInt(tfSceneWidth), Util.getInt(tfSceneHeight));
         Dimension sDim = new Dimension(Util.getInt(tfWindowWidth), Util.getInt(tfWindowHeight));
 
-        PreviewWindow prev = new PreviewWindow(treeMap, wDim, sDim);
+        IScene s = App.jarUtil.getScene(cbScenePreview.getSelectedIndex());
+
+        PreviewWindow prev = new PreviewWindow(s, treeMap, wDim, sDim);
         prev.setCamPosition(new Point(Util.getInt(tfCamInitPx), Util.getInt(tfCamInitPy)));
         prev.setVisible(true);
 
@@ -1120,11 +1130,17 @@ public class Window extends javax.swing.JFrame {
 
     private void dlgNewElementOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlgNewElementOKActionPerformed
 
-        ElementModel el = new ElementModel(20, 20, dlgTfName.getText());
+        ElementModel el = App.jarUtil.getElement(cbNewElementType.getSelectedIndex());
+
+        System.out.println("el " + (el.getClass()));
+
         el.setId(Util.getInt(dlgTfID));
+        el.setName(dlgTfName.getText());
+        el.setSize(20, 20);
 
         dialodNewElement.dispose();
         openEditElement(el);
+
 
     }//GEN-LAST:event_dlgNewElementOKActionPerformed
 
@@ -1149,13 +1165,13 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JButton btnRemoveElement;
     private javax.swing.JButton btnRemoveElementTree;
     private javax.swing.JComboBox cbNewElementType;
+    private javax.swing.JComboBox cbScenePreview;
     private javax.swing.JFrame dialodNewElement;
     private javax.swing.JButton dlgNewElementCancel;
     private javax.swing.JButton dlgNewElementOK;
     private javax.swing.JTextField dlgTfID;
     private javax.swing.JTextField dlgTfName;
     private javax.swing.JButton jButton1;
-    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1316,20 +1332,20 @@ public class Window extends javax.swing.JFrame {
 
                 if (i == 0) {
                     camMoveButton[i].setFocus(true);
-                    Camera.c().rollX(-temp);
-                    tfCamPx.setText(String.valueOf(Camera.c().getPx()));
+                    cam.rollX(-temp);
+                    tfCamPx.setText(String.valueOf(cam.getPx()));
                 } else if (i == 1) {
                     camMoveButton[i].setFocus(true);
-                    Camera.c().rollX(temp);
-                    tfCamPx.setText(String.valueOf(Camera.c().getPx()));
+                    cam.rollX(temp);
+                    tfCamPx.setText(String.valueOf(cam.getPx()));
                 } else if (i == 2) {
                     camMoveButton[i].setFocus(true);
-                    Camera.c().rollY(-temp);
-                    tfCamPy.setText(String.valueOf(Camera.c().getPy()));
+                    cam.rollY(-temp);
+                    tfCamPy.setText(String.valueOf(cam.getPy()));
                 } else {
                     camMoveButton[i].setFocus(true);
-                    Camera.c().rollY(temp);
-                    tfCamPy.setText(String.valueOf(Camera.c().getPy()));
+                    cam.rollY(temp);
+                    tfCamPy.setText(String.valueOf(cam.getPy()));
                 }
             }
         }
@@ -1351,14 +1367,14 @@ public class Window extends javax.swing.JFrame {
                 g.fillRect(0, 0, getWidth(), getHeight());
 
                 g.setColor(btnCanvasColor.getBackground());
-                g.fillRect(-Camera.c().getPx(), -Camera.c().getPy(), SCENE_WIDTH, SCENE_HEIGHT);
+                g.fillRect(-cam.getPx(), -cam.getPy(), SCENE_WIDTH, SCENE_HEIGHT);
 
                 if (scene != null) {
                     //scene.drawElements(g);
                     for (String k : treeMap.keySet()) {
                         for (ElementModel el : treeMap.get(k)) {
                             //el.drawMe(g);
-                            Camera.c().draw(g, el);
+                            cam.draw(g, el);
                         }
                     }
                 }
@@ -1386,7 +1402,7 @@ public class Window extends javax.swing.JFrame {
                             break;
                         }
 
-                        g.drawRect(Camera.c().fx(el.getPx() - sp), Camera.c().fy(el.getPy() - sp), el.getWidth() + sp * 2, el.getHeight() + sp * 2);
+                        g.drawRect(cam.fx(el.getPx() - sp), cam.fy(el.getPy() - sp), el.getWidth() + sp * 2, el.getHeight() + sp * 2);
                     }
 
                     if (startDrag != null) {
@@ -1397,7 +1413,7 @@ public class Window extends javax.swing.JFrame {
                                 break;
                             }
 
-                            g.drawRect(Camera.c().fx(el.getPx() + npx), Camera.c().fy(el.getPy() + npy), el.getWidth(), el.getHeight());
+                            g.drawRect(cam.fx(el.getPx() + npx), cam.fy(el.getPy() + npy), el.getWidth(), el.getHeight());
                         }
                     }
 
@@ -1411,10 +1427,10 @@ public class Window extends javax.swing.JFrame {
                 }
 
                 g.setColor(btnCanvasColor.getBackground());
-                g.drawRect(-Camera.c().getPx(), -Camera.c().getPy(), SCENE_WIDTH, SCENE_HEIGHT);
+                g.drawRect(-cam.getPx(), -cam.getPy(), SCENE_WIDTH, SCENE_HEIGHT);
 
                 g.setColor(Color.RED);
-                g.drawRect(-Camera.c().getPx(), -Camera.c().getPy(), SCREEN_WIDTH, SCREEN_HEIGHT);
+                g.drawRect(-cam.getPx(), -cam.getPy(), SCREEN_WIDTH, SCREEN_HEIGHT);
             }
         };
 
@@ -1426,14 +1442,14 @@ public class Window extends javax.swing.JFrame {
                 if (e.getButton() == MouseEvent.BUTTON1) {
 
                     if (selectedElement != null) {
-                        addElement(copy(e.getX() + Camera.c().getCpx(), e.getY() + Camera.c().getCpy(), selectedElement));
+                        addElement(copy(e.getX() + cam.getCpx(), e.getY() + cam.getCpy(), selectedElement));
 
                         //TODO add if control key is pressed
                         //selectedElement = null;
                         //tableLibrary.clearSelection();
                         //
                     } else {
-                        mouseElement.setPxy(e.getX() + Camera.c().getCpx(), e.getY() + Camera.c().getCpy());
+                        mouseElement.setPxy(e.getX() + cam.getCpx(), e.getY() + cam.getCpy());
 
                         if (EditTool.SELECTOR == getEditTool()) {
                             selectElementOnStage(hasColision(mouseElement));
@@ -1450,7 +1466,7 @@ public class Window extends javax.swing.JFrame {
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
 
-                    mouseElement.setPxy(e.getX() + Camera.c().getCpx(), e.getY() + Camera.c().getCpy());
+                    mouseElement.setPxy(e.getX() + cam.getCpx(), e.getY() + cam.getCpy());
 
                     if (EditTool.SELECTOR == getEditTool()) {
 
@@ -1481,8 +1497,8 @@ public class Window extends javax.swing.JFrame {
                         //System.out.println("Erro1");
                         //scene.releaseElement(selector);
                         selector.adjustInvertSelection();
-                        selector.setPx(selector.getPx() + Camera.c().getCpx());
-                        selector.setPy(selector.getPy() + Camera.c().getCpy());
+                        selector.setPx(selector.getPx() + cam.getCpx());
+                        selector.setPy(selector.getPy() + cam.getCpy());
 
                         singleSelection(null);
 
@@ -1559,7 +1575,7 @@ public class Window extends javax.swing.JFrame {
 
             private void updateMousePosition(MouseEvent e) {
                 mousePos = e.getPoint();
-                lblCanvasInfo.setText(String.format("%d %d Cam: %.0f %.0f ", mousePos.x, mousePos.y, mousePos.x + Camera.c().getCpx(), mousePos.y + Camera.c().getCpy()));
+                lblCanvasInfo.setText(String.format("%d %d Cam: %.0f %.0f ", mousePos.x, mousePos.y, mousePos.x + cam.getCpx(), mousePos.y + cam.getCpy()));
             }
         });
 
@@ -1706,18 +1722,18 @@ public class Window extends javax.swing.JFrame {
         int py = Util.getInt(tfCamPy);
 
         if (px != -1 && py != -1) {
-            Camera.c().move(px, py);
+            cam.move(px, py);
         }
     }
 
     private void positionCam(int px, int py) {
-        Camera.c().rollX(px);
-        Camera.c().rollY(py);
+        cam.rollX(px);
+        cam.rollY(py);
     }
 
     private void positionCam(MouseEvent e) {
-        Camera.c().rollX(mousePos.x - e.getX());
-        Camera.c().rollY(mousePos.y - e.getY());
+        cam.rollX(mousePos.x - e.getX());
+        cam.rollY(mousePos.y - e.getY());
     }
 
     private void log(ElementModel... el) {

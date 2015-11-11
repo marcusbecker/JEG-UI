@@ -27,14 +27,17 @@ import java.util.zip.ZipInputStream;
  */
 public class JartUtil {
 
-    private final List<IScene> scenes;
-    private final List<ElementModel> elements;
+    private final List<Class<? extends IScene>> scenes;
+    private final List<Class<? extends ElementModel>> elements;
 
     public JartUtil() {
         scenes = new ArrayList<>(10);
         elements = new ArrayList<>(10);
 
-        elements.add((ElementModel) createInstance(ElementModel.class));
+        //elements.add((ElementModel) createInstance(ElementModel.class));
+        //scenes.add((IScene) createInstance(MyScece.class));
+        scenes.add(IScene.class);
+        elements.add(ElementModel.class);
     }
 
     private static Object createInstance(Class c) {
@@ -72,6 +75,43 @@ public class JartUtil {
         return classNames;
     }
 
+    public void populeClassNames(String path, List<String> classNames) {
+
+        try {
+            File myJar = new File(path);
+            URL[] urls = new URL[1];
+            urls[0] = myJar.toURI().toURL();
+
+            URLClassLoader child = new URLClassLoader(urls, this.getClass().getClassLoader());
+
+            for (String cName : classNames) {
+                Class classToLoad = Class.forName(cName, true, child);
+                //System.out.println("classToLoad " + classToLoad.getName());
+
+                boolean isElement = false;
+
+                try {
+                    classToLoad.asSubclass(ElementModel.class);
+                    //elements.add(classToLoad);
+                    isElement = true;
+                } catch (Exception e) {
+
+                }
+
+                if (!isElement) {
+                    try {
+                        classToLoad.asSubclass(IScene.class);
+                        scenes.add(classToLoad);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+
+        } catch (MalformedURLException | ClassNotFoundException e) {
+            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
     public void instanceClassNames(String path, List<String> classNames) {
 
         try {
@@ -84,9 +124,6 @@ public class JartUtil {
             for (String cName : classNames) {
                 Class classToLoad = Class.forName(cName, true, child);
 
-                /*if (!isSub(classToLoad, ElementModel.class) || !isSub(classToLoad, IScene.class)) {
-                 continue;
-                 }*/
                 boolean fail = false;
 
                 try {
@@ -112,18 +149,18 @@ public class JartUtil {
                 /* for(Class c : classToLoad.getClasses())
                  System.out.println("classToLoad " + (c));*/
                 try {
+                    //Prevent class loader error.
                     Object instance = classToLoad.newInstance();
+                    System.out.println(instance);
 
                     //setMethods(classToLoad, instance);
-                    if (instance instanceof ElementModel) {
-                        elements.add((ElementModel) instance);
+                    /*if (instance instanceof ElementModel) {
+                     _elements.add((ElementModel) instance);
 
-                    } else if (instance instanceof IScene) {
-                        IScene sc = (IScene) instance;
-                        sc.startScene();
-                        scenes.add(sc);
-                    }
-
+                     } else if (instance instanceof IScene) {
+                     IScene sc = (IScene) instance;
+                     _scenes.add(sc);
+                     }*/
                 } catch (InstantiationException | UnsupportedOperationException e) {
 
                 }
@@ -170,11 +207,11 @@ public class JartUtil {
         }
     }
 
-    public List<IScene> getScenes() {
+    public List<Class<? extends IScene>> getScenes() {
         return scenes;
     }
 
-    public List<ElementModel> getElements() {
+    public List<Class<? extends ElementModel>> getElements() {
         return elements;
     }
 
@@ -188,6 +225,26 @@ public class JartUtil {
         }
 
         return false;
+    }
+
+    public IScene getScene(int selectedIndex) {
+        try {
+            return getScenes().get(selectedIndex).newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
+    }
+
+    public ElementModel getElement(int selectedIndex) {
+        try {
+            return getElements().get(selectedIndex).newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
     }
 
 }
