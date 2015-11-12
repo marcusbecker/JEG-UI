@@ -9,6 +9,7 @@ import br.com.mvbos.jeg.element.ElementModel;
 import static br.com.mvbos.jegui.Constants.BACKGROUND;
 import static br.com.mvbos.jegui.Constants.FOREGROUND;
 import static br.com.mvbos.jegui.Constants.STAGE;
+import br.com.mvbos.jegui.external.MyObjectInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,7 +27,7 @@ import java.util.logging.Logger;
  *
  * @author Marcus Becker
  */
-class FileUtil {
+public class FileUtil {
 
     private static final String LIBRARY_ELEMENTS = "library.temp";
     private static final String SCENE_ELEMENTS = "list.temp";
@@ -35,12 +36,14 @@ class FileUtil {
 
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SCENE_ELEMENTS))) {
             out.writeObject(sceneElements);
+            out.reset();
         } catch (IOException ex) {
             Logger.getLogger(FileUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(LIBRARY_ELEMENTS))) {
             out.writeObject(libElements);
+            out.reset();
         } catch (IOException ex) {
             Logger.getLogger(FileUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -51,7 +54,7 @@ class FileUtil {
 
         if (f.exists()) {
 
-            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(f))) {
+            try (ObjectInputStream in = new MyObjectInputStream(new FileInputStream(f))) {
                 return (Map<String, List<ElementModel>>) in.readObject();
             } catch (Exception ex) {
                 Logger.getLogger(FileUtil.class.getName()).log(Level.SEVERE, null, ex);
@@ -71,7 +74,7 @@ class FileUtil {
 
         if (f.exists()) {
 
-            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(f))) {
+            try (ObjectInputStream in = new MyObjectInputStream(new FileInputStream(f))) {
                 return (List<ElementModel>) in.readObject();
             } catch (Exception ex) {
                 Logger.getLogger(FileUtil.class.getName()).log(Level.SEVERE, null, ex);

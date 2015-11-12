@@ -18,16 +18,16 @@ import java.awt.Graphics2D;
  *
  * @author Marcus Becker
  */
-public class MyScece implements IScene, ISelectorScene {
+public class DefaultScene implements IScene, ISelectorScene {
 
     private static int ct;
     private IMemory[] memo;
     private SelectorElement selector;
 
-    public MyScece() {
+    public DefaultScene() {
     }
 
-    public MyScece(IMemory[] memo) {
+    public DefaultScene(IMemory[] memo) {
         this.memo = memo;
     }
 

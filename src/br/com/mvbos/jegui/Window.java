@@ -13,6 +13,7 @@ import br.com.mvbos.jeg.scene.IScene;
 import br.com.mvbos.jegui.ui.tree.ElementMutableTreeNode;
 import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
+import br.com.mvbos.jeg.window.impl.MemoryImpl;
 import br.com.mvbos.jegui.dialogs.DialogNewImageElement;
 import br.com.mvbos.jegui.el.ButtonElement;
 import br.com.mvbos.jegui.prev.PreviewWindow;
@@ -171,7 +172,7 @@ public class Window extends javax.swing.JFrame {
         }
     }
 
-    private void addElement(ElementModel el) {
+    private void addElementOnStage(ElementModel el) {
 
         DefaultMutableTreeNode parentNode;
         TreePath parentPath = tree.getSelectionPath();
@@ -189,6 +190,8 @@ public class Window extends javax.swing.JFrame {
         if (parentNode instanceof ElementMutableTreeNode) {
             throw new IllegalArgumentException("Invalid node location");
         }
+
+        System.out.println("eee " + el.getClass().getSimpleName());
 
         treeMap.get(parentNode.toString()).add(el);
         parentNode.add(new ElementMutableTreeNode(el));
@@ -1097,7 +1100,21 @@ public class Window extends javax.swing.JFrame {
 
         IScene s = App.jarUtil.getScene(cbScenePreview.getSelectedIndex());
 
-        PreviewWindow prev = new PreviewWindow(s, treeMap, wDim, sDim);
+        int i = 0;
+        IMemory[] arr = new IMemory[treeMap.size()];
+
+        for (String k : treeMap.keySet()) {
+            List<ElementModel> l = treeMap.get(k);
+            arr[i] = new MemoryImpl(l.size());
+
+            for (ElementModel e : l) {
+                arr[i].registerElement(App.jarUtil.copy(e));
+            }
+
+            i++;
+        }
+
+        PreviewWindow prev = new PreviewWindow(s, arr, wDim, sDim);
         prev.setCamPosition(new Point(Util.getInt(tfCamInitPx), Util.getInt(tfCamInitPy)));
         prev.setVisible(true);
 
@@ -1252,7 +1269,9 @@ public class Window extends javax.swing.JFrame {
     }
 
     private ElementModel copy(float px, float py, ElementModel source) {
-        ElementModel el = new ElementModel(px, py, source.getWidth(), source.getHeight(), id + " " + source.getName());
+        ElementModel el = App.jarUtil.copy(source);
+        el.setPxy(px, py);
+
         el.setId(id++);
         el.setColor(source.getColor());
         el.setImage(source.getImage());
@@ -1442,7 +1461,7 @@ public class Window extends javax.swing.JFrame {
                 if (e.getButton() == MouseEvent.BUTTON1) {
 
                     if (selectedElement != null) {
-                        addElement(copy(e.getX() + cam.getCpx(), e.getY() + cam.getCpy(), selectedElement));
+                        addElementOnStage(copy(e.getX() + cam.getCpx(), e.getY() + cam.getCpy(), selectedElement));
 
                         //TODO add if control key is pressed
                         //selectedElement = null;

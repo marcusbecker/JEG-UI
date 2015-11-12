@@ -7,6 +7,8 @@ package br.com.mvbos.jegui.external;
 
 import br.com.mvbos.jeg.element.ElementModel;
 import br.com.mvbos.jeg.scene.IScene;
+import br.com.mvbos.jegui.FileUtil;
+import br.com.mvbos.jegui.prev.DefaultScene;
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
@@ -36,7 +38,7 @@ public class JartUtil {
 
         //elements.add((ElementModel) createInstance(ElementModel.class));
         //scenes.add((IScene) createInstance(MyScece.class));
-        scenes.add(IScene.class);
+        scenes.add(DefaultScene.class);
         elements.add(ElementModel.class);
     }
 
@@ -82,7 +84,7 @@ public class JartUtil {
             URL[] urls = new URL[1];
             urls[0] = myJar.toURI().toURL();
 
-            URLClassLoader child = new URLClassLoader(urls, this.getClass().getClassLoader());
+            URLClassLoader child = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
 
             for (String cName : classNames) {
                 Class classToLoad = Class.forName(cName, true, child);
@@ -92,7 +94,7 @@ public class JartUtil {
 
                 try {
                     classToLoad.asSubclass(ElementModel.class);
-                    //elements.add(classToLoad);
+                    elements.add(classToLoad);
                     isElement = true;
                 } catch (Exception e) {
 
@@ -119,7 +121,7 @@ public class JartUtil {
             URL[] urls = new URL[1];
             urls[0] = myJar.toURI().toURL();
 
-            URLClassLoader child = new URLClassLoader(urls, this.getClass().getClassLoader());
+            URLClassLoader child = new URLClassLoader(urls, FileUtil.class.getClassLoader());
 
             for (String cName : classNames) {
                 Class classToLoad = Class.forName(cName, true, child);

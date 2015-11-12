@@ -33,7 +33,7 @@ import javax.swing.JPanel;
  */
 public class PreviewWindow extends javax.swing.JFrame {
 
-    private final IMemory[] memo = new IMemory[3];
+    private final IMemory[] memo;
 
     private final IScene scene;
     private final BufferedImage buf;
@@ -43,30 +43,15 @@ public class PreviewWindow extends javax.swing.JFrame {
 
     private SelectorElement selectorElement = new SelectorElement(Color.WHITE, null);
 
-    public PreviewWindow(IScene scene, Map<String, List<ElementModel>> lst, Dimension sceneDim, Dimension screenDim) {
+    public PreviewWindow(IScene scene, IMemory[] memory, Dimension sceneDim, Dimension screenDim) {
 
         this.scene = scene;
         this.dim = screenDim;
+        this.memo = memory;
 
         Camera.c().config(sceneDim.width, sceneDim.height, screenDim.width, screenDim.height);
 
         //cam.offSet(10, 10);
-        memo[0] = new MemoryImpl(lst.get(Constants.BACKGROUND).size());
-        memo[1] = new MemoryImpl(lst.get(Constants.STAGE).size());
-        memo[2] = new MemoryImpl(lst.get(Constants.FOREGROUND).size());
-
-        for (ElementModel e : lst.get(Constants.BACKGROUND)) {
-            memo[0].registerElement(e);
-        }
-
-        for (ElementModel e : lst.get(Constants.STAGE)) {
-            memo[1].registerElement(e);
-        }
-
-        for (ElementModel e : lst.get(Constants.FOREGROUND)) {
-            memo[2].registerElement(e);
-        }
-
         buf = new BufferedImage(screenDim.width, screenDim.height, BufferedImage.TYPE_INT_RGB);
 
         //scene = createScene();
@@ -221,7 +206,7 @@ public class PreviewWindow extends javax.swing.JFrame {
     }
 
     private IScene createScene() {
-        return new MyScece(memo);
+        return new DefaultScene(memo);
     }
 
     private void initGame() {
