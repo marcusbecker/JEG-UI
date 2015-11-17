@@ -5,15 +5,12 @@
  */
 package br.com.mvbos.jegui.prev;
 
-import br.com.mvbos.jeg.element.ElementModel;
 import br.com.mvbos.jeg.element.SelectorElement;
 import br.com.mvbos.jeg.engine.JPad;
 import br.com.mvbos.jeg.scene.IScene;
 import br.com.mvbos.jeg.scene.ISelectorScene;
 import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
-import br.com.mvbos.jeg.window.impl.MemoryImpl;
-import br.com.mvbos.jegui.Constants;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -23,8 +20,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.Map;
 import javax.swing.JPanel;
 
 /**
@@ -41,7 +36,7 @@ public class PreviewWindow extends javax.swing.JFrame {
 
     private boolean endGame;
 
-    private SelectorElement selectorElement = new SelectorElement(Color.WHITE, null);
+    private final SelectorElement selectorElement = new SelectorElement(Color.WHITE, null);
 
     public PreviewWindow(IScene scene, IMemory[] memory, Dimension sceneDim, Dimension screenDim) {
 

@@ -7,7 +7,6 @@ package br.com.mvbos.jegui.external;
 
 import br.com.mvbos.jeg.element.ElementModel;
 import br.com.mvbos.jeg.scene.IScene;
-import br.com.mvbos.jegui.FileUtil;
 import br.com.mvbos.jegui.prev.DefaultScene;
 import java.io.File;
 import java.io.FileInputStream;
@@ -114,6 +113,43 @@ public class JartUtil {
         }
     }
 
+    public List<Class> getClassNames(String path, List<String> classNames) {
+
+        List<Class> lstClasses = new ArrayList<>(classNames.size());
+
+        try {
+            File myJar = new File(path);
+            URL[] urls = new URL[1];
+            urls[0] = myJar.toURI().toURL();
+
+            URLClassLoader child = new URLClassLoader(urls, FileUtil.class.getClassLoader());
+
+            for (String cName : classNames) {
+                Class classToLoad = Class.forName(cName, true, child);
+
+                try {
+                    classToLoad.asSubclass(ElementModel.class);
+                    lstClasses.add(classToLoad);
+
+                    continue;
+                } catch (Exception e) {
+                }
+
+                try {
+                    classToLoad.asSubclass(IScene.class);
+                    lstClasses.add(classToLoad);
+                } catch (Exception e) {
+                }
+
+            }
+
+        } catch (MalformedURLException | ClassNotFoundException e) {
+            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, e);
+        }
+
+        return lstClasses;
+    }
+
     public void instanceClassNames(String path, List<String> classNames) {
 
         try {
@@ -209,14 +245,6 @@ public class JartUtil {
         }
     }
 
-    public List<Class<? extends IScene>> getScenes() {
-        return scenes;
-    }
-
-    public List<Class<? extends ElementModel>> getElements() {
-        return elements;
-    }
-
     private boolean isSub(Class classToLoad, Class aClass) {
 
         try {
@@ -231,7 +259,7 @@ public class JartUtil {
 
     public IScene getScene(int selectedIndex) {
         try {
-            return getScenes().get(selectedIndex).newInstance();
+            return scenes.get(selectedIndex).newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
             Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -241,7 +269,7 @@ public class JartUtil {
 
     public ElementModel getElement(int selectedIndex) {
         try {
-            return getElements().get(selectedIndex).newInstance();
+            return elements.get(selectedIndex).newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
             Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, ex);
         }

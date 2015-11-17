@@ -5,6 +5,7 @@
  */
 package br.com.mvbos.jegui;
 
+import br.com.mvbos.jegui.external.FileUtil;
 import br.com.mvbos.jegui.ui.table.PropertyElementTable;
 import br.com.mvbos.jeg.element.ElementModel;
 import br.com.mvbos.jeg.element.SelectorElement;
@@ -16,6 +17,7 @@ import br.com.mvbos.jeg.window.IMemory;
 import br.com.mvbos.jeg.window.impl.MemoryImpl;
 import br.com.mvbos.jegui.dialogs.DialogNewImageElement;
 import br.com.mvbos.jegui.el.ButtonElement;
+import br.com.mvbos.jegui.external.PropertiesUtil;
 import br.com.mvbos.jegui.prev.PreviewWindow;
 import java.awt.Color;
 import java.awt.Component;
@@ -30,15 +32,17 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.util.List;
-import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -54,8 +58,7 @@ public class Window extends javax.swing.JFrame {
     private final Camera cam = Camera.createNew();
     private final PropertyElementTable elementTable = new PropertyElementTable();
 
-    private final List<ElementModel> all = FileUtil.loadLib();
-    private final Map<String, List<ElementModel>> treeMap = FileUtil.loadList();
+    private Project project = new Project("New Project");
 
     private JPanel canvas;
     private final DefaultMutableTreeNode root;
@@ -82,6 +85,7 @@ public class Window extends javax.swing.JFrame {
     private short menuOldSize = 350;
 
     private boolean invertColor;
+    private File openedFile;
 
     public Window() {
 
@@ -116,8 +120,8 @@ public class Window extends javax.swing.JFrame {
         tfWindowWidth.setText(String.valueOf(SCREEN_WIDTH));
         tfWindowHeight.setText(String.valueOf(SCREEN_HEIGHT));
 
-        tree.removeAll();
-        tree.setModel(new DefaultTreeModel(root));
+        treeStage.removeAll();
+        treeStage.setModel(new DefaultTreeModel(root));
 
         /*tree.setDragEnabled(true);
          tree.setDropMode(DropMode.ON_OR_INSERT);
@@ -126,10 +130,10 @@ public class Window extends javax.swing.JFrame {
          });
          tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
          */
-        for (String k : treeMap.keySet()) {
+        for (String k : project.getSceneElements().keySet()) {
             DefaultMutableTreeNode t = new DefaultMutableTreeNode(k);
 
-            for (ElementModel el : treeMap.get(k)) {
+            for (ElementModel el : project.getSceneElements().get(k)) {
                 t.add(new ElementMutableTreeNode(el));
             }
 
@@ -143,7 +147,7 @@ public class Window extends javax.swing.JFrame {
 
             @Override
             public int getRowCount() {
-                return all.size();
+                return project.getLibElements().size();
             }
 
             @Override
@@ -153,7 +157,7 @@ public class Window extends javax.swing.JFrame {
 
             @Override
             public Object getValueAt(int rowIndex, int columnIndex) {
-                ElementModel el = all.get(rowIndex);
+                ElementModel el = project.getLibElements().get(rowIndex);
                 return String.format("%d %s", el.getId(), el.getName());
             }
 
@@ -175,7 +179,7 @@ public class Window extends javax.swing.JFrame {
     private void addElementOnStage(ElementModel el) {
 
         DefaultMutableTreeNode parentNode;
-        TreePath parentPath = tree.getSelectionPath();
+        TreePath parentPath = treeStage.getSelectionPath();
 
         if (parentPath == null || parentPath.getLastPathComponent() == root) {
             parentNode = (DefaultMutableTreeNode) root.getFirstChild();
@@ -193,9 +197,9 @@ public class Window extends javax.swing.JFrame {
 
         System.out.println("eee " + el.getClass().getSimpleName());
 
-        treeMap.get(parentNode.toString()).add(el);
+        project.getSceneElements().get(parentNode.toString()).add(el);
         parentNode.add(new ElementMutableTreeNode(el));
-        tree.updateUI();
+        treeStage.updateUI();
     }
 
     private void removeElement(DefaultMutableTreeNode node) {
@@ -203,13 +207,13 @@ public class Window extends javax.swing.JFrame {
             throw new IllegalArgumentException("Invalid node location");
         }
 
-        DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+        DefaultTreeModel model = (DefaultTreeModel) treeStage.getModel();
         ElementModel el = (ElementModel) node.getUserObject();
         TreeNode parent = node.getParent();
 
-        treeMap.get(parent.toString()).remove(el);
+        project.getSceneElements().get(parent.toString()).remove(el);
         model.removeNodeFromParent(node);
-        tree.updateUI();
+        treeStage.updateUI();
 
         singleSelection(null);
     }
@@ -223,6 +227,9 @@ public class Window extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        fcOpenProject = new javax.swing.JFileChooser();
+        fcSaveProject = new javax.swing.JFileChooser();
+        fcImportFile = new javax.swing.JFileChooser();
         dialodNewElement = new javax.swing.JFrame();
         jLabelID = new javax.swing.JLabel();
         jLabelName = new javax.swing.JLabel();
@@ -232,6 +239,15 @@ public class Window extends javax.swing.JFrame {
         dlgNewElementCancel = new javax.swing.JButton();
         dlgNewElementOK = new javax.swing.JButton();
         cbNewElementType = new javax.swing.JComboBox();
+        dlgImportJar = new javax.swing.JDialog();
+        cbImportList = new javax.swing.JComboBox();
+        btnImportRem = new javax.swing.JButton();
+        btnImportAdd = new javax.swing.JButton();
+        lblImportInfo = new javax.swing.JLabel();
+        btnImportUpdate = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        lstImportClasses = new javax.swing.JList();
+        btnImportSave = new javax.swing.JButton();
         pnHead = new javax.swing.JPanel();
         pnEditTools = new javax.swing.JPanel();
         btnEdTLSelect = new javax.swing.JToggleButton();
@@ -252,7 +268,7 @@ public class Window extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         pnTree = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tree = new javax.swing.JTree();
+        treeStage = new javax.swing.JTree();
         bntAddElement = new javax.swing.JButton();
         btnRemoveElementTree = new javax.swing.JButton();
         pnBottom = new javax.swing.JPanel();
@@ -282,8 +298,13 @@ public class Window extends javax.swing.JFrame {
         cbScenePreview = new javax.swing.JComboBox();
         menuMain = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        miOpen = new javax.swing.JMenuItem();
         mnSave = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
+        miExit = new javax.swing.JMenuItem();
+        miImport = new javax.swing.JMenu();
+        miImportJar = new javax.swing.JMenuItem();
+
+        fcSaveProject.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
 
         dialodNewElement.setTitle("Add new Element");
 
@@ -368,6 +389,80 @@ public class Window extends javax.swing.JFrame {
                     .addComponent(dlgNewElementOK)
                     .addComponent(dlgNewElementCancel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        btnImportRem.setText("-");
+        btnImportRem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImportRemActionPerformed(evt);
+            }
+        });
+
+        btnImportAdd.setText("+");
+        btnImportAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImportAddActionPerformed(evt);
+            }
+        });
+
+        lblImportInfo.setText(".");
+
+        btnImportUpdate.setText("Update");
+        btnImportUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImportUpdateActionPerformed(evt);
+            }
+        });
+
+        jScrollPane4.setViewportView(lstImportClasses);
+
+        btnImportSave.setText("Save");
+        btnImportSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImportSaveActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout dlgImportJarLayout = new javax.swing.GroupLayout(dlgImportJar.getContentPane());
+        dlgImportJar.getContentPane().setLayout(dlgImportJarLayout);
+        dlgImportJarLayout.setHorizontalGroup(
+            dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dlgImportJarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 741, Short.MAX_VALUE)
+                    .addGroup(dlgImportJarLayout.createSequentialGroup()
+                        .addComponent(cbImportList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnImportAdd)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnImportRem))
+                    .addGroup(dlgImportJarLayout.createSequentialGroup()
+                        .addComponent(lblImportInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnImportUpdate))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dlgImportJarLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnImportSave)))
+                .addContainerGap())
+        );
+        dlgImportJarLayout.setVerticalGroup(
+            dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dlgImportJarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbImportList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnImportRem)
+                    .addComponent(btnImportAdd))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblImportInfo)
+                    .addComponent(btnImportUpdate))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnImportSave)
+                .addContainerGap())
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -546,12 +641,12 @@ public class Window extends javax.swing.JFrame {
 
         pnTree.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        tree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+        treeStage.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-                treeValueChanged(evt);
+                treeStageValueChanged(evt);
             }
         });
-        jScrollPane2.setViewportView(tree);
+        jScrollPane2.setViewportView(treeStage);
 
         bntAddElement.setText("+");
 
@@ -898,6 +993,15 @@ public class Window extends javax.swing.JFrame {
 
         jMenu1.setText("File");
 
+        miOpen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        miOpen.setText("Open");
+        miOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miOpenActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miOpen);
+
         mnSave.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         mnSave.setText("Save");
         mnSave.addActionListener(new java.awt.event.ActionListener() {
@@ -907,10 +1011,28 @@ public class Window extends javax.swing.JFrame {
         });
         jMenu1.add(mnSave);
 
+        miExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.CTRL_MASK));
+        miExit.setText("Exit");
+        miExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miExitActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miExit);
+
         menuMain.add(jMenu1);
 
-        jMenu2.setText("Edit");
-        menuMain.add(jMenu2);
+        miImport.setText("Import");
+
+        miImportJar.setText("Classes in jar file");
+        miImportJar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miImportJarActionPerformed(evt);
+            }
+        });
+        miImport.add(miImportJar);
+
+        menuMain.add(miImport);
 
         setJMenuBar(menuMain);
 
@@ -946,9 +1068,9 @@ public class Window extends javax.swing.JFrame {
         elementTable.printData();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void treeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_treeValueChanged
+    private void treeStageValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_treeStageValueChanged
 
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeStage.getLastSelectedPathComponent();
 
         if (node == null) {
             return;
@@ -960,7 +1082,7 @@ public class Window extends javax.swing.JFrame {
             selectElementOnStage((ElementModel) nodeInfo);
         }
 
-    }//GEN-LAST:event_treeValueChanged
+    }//GEN-LAST:event_treeStageValueChanged
 
     private void btnCanvasColorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCanvasColorActionPerformed
         if (dialog == null) {
@@ -1008,13 +1130,13 @@ public class Window extends javax.swing.JFrame {
             return;
         }
 
-        selectElementOnLibrary(all.get(sel));
+        selectElementOnLibrary(project.getLibElements().get(sel));
 
     }//GEN-LAST:event_tableLibraryMouseClicked
 
     private void btnRemoveElementTreeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveElementTreeActionPerformed
 
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeStage.getLastSelectedPathComponent();
 
         if (node == null) {
             return;
@@ -1059,7 +1181,28 @@ public class Window extends javax.swing.JFrame {
 
     private void mnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnSaveActionPerformed
 
-        FileUtil.saveList(treeMap, all);
+        if (openedFile == null) {
+            fcSaveProject.setFileFilter(new FileFilter() {
+
+                @Override
+                public boolean accept(File f) {
+                    return f.isDirectory() || f.getName().toLowerCase().endsWith(".jeg");
+                }
+
+                @Override
+                public String getDescription() {
+                    return ".jeg";
+                }
+            });
+
+            fcSaveProject.showSaveDialog(this);
+            openedFile = fcSaveProject.getSelectedFile();
+        }
+
+        if (openedFile != null) {
+            setTitle(openedFile.getAbsolutePath());
+            FileUtil.saveProject(openedFile, project);
+        }
 
     }//GEN-LAST:event_mnSaveActionPerformed
 
@@ -1077,7 +1220,7 @@ public class Window extends javax.swing.JFrame {
 
     private void btnAddNewElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewElementActionPerformed
 
-        dlgTfID.setText(String.valueOf(all.size() + 1));
+        dlgTfID.setText(String.valueOf(project.getLibElements().size() + 1));
         dialodNewElement.pack();
         dialodNewElement.setLocationRelativeTo(this);
 
@@ -1101,10 +1244,10 @@ public class Window extends javax.swing.JFrame {
         IScene s = App.jarUtil.getScene(cbScenePreview.getSelectedIndex());
 
         int i = 0;
-        IMemory[] arr = new IMemory[treeMap.size()];
+        IMemory[] arr = new IMemory[project.getSceneElements().size()];
 
-        for (String k : treeMap.keySet()) {
-            List<ElementModel> l = treeMap.get(k);
+        for (String k : project.getSceneElements().keySet()) {
+            List<ElementModel> l = project.getSceneElements().get(k);
             arr[i] = new MemoryImpl(l.size());
 
             for (ElementModel e : l) {
@@ -1167,6 +1310,120 @@ public class Window extends javax.swing.JFrame {
 
     }//GEN-LAST:event_dlgNewElementCancelActionPerformed
 
+    private void miExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miExitActionPerformed
+
+        System.exit(0);
+
+    }//GEN-LAST:event_miExitActionPerformed
+
+    private void btnImportAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportAddActionPerformed
+
+        fcImportFile.setFileFilter(new FileFilter() {
+
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().toLowerCase().endsWith(".jar");
+            }
+
+            @Override
+            public String getDescription() {
+                return ".jar";
+            }
+        });
+
+        fcImportFile.showOpenDialog(this);
+
+        if (fcImportFile.getSelectedFile() != null) {
+            cbImportList.addItem(fcImportFile.getSelectedFile().getAbsolutePath());
+
+            List<String> listClassNames = App.jarUtil.listClassNames(fcImportFile.getSelectedFile().getAbsolutePath());
+            List<Class> classNames = App.jarUtil.getClassNames(fcImportFile.getSelectedFile().getAbsolutePath(), listClassNames);
+
+            DefaultListModel d = new DefaultListModel();
+
+            for (Class c : classNames) {
+                d.addElement(c.getSimpleName());
+            }
+
+            lstImportClasses.setModel(d);
+        }
+
+
+    }//GEN-LAST:event_btnImportAddActionPerformed
+
+    private void miImportJarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miImportJarActionPerformed
+
+        dlgImportJar.pack();
+        dlgImportJar.setLocationRelativeTo(this);
+        dlgImportJar.setVisible(true);
+
+    }//GEN-LAST:event_miImportJarActionPerformed
+
+    private void btnImportRemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportRemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnImportRemActionPerformed
+
+    private void btnImportUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportUpdateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnImportUpdateActionPerformed
+
+    private void btnImportSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportSaveActionPerformed
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < cbImportList.getItemCount(); i++) {
+            String path = cbImportList.getItemAt(i).toString();
+
+            sb.append(path).append(";");
+
+            project.getImportFiles().add(path);
+
+            List<String> listClassNames = App.jarUtil.listClassNames(path);
+            App.jarUtil.populeClassNames(path, listClassNames);
+
+            cbNewElementType.setModel(new DefaultComboBoxModel(App.jarUtil.getElements().toArray()));
+            cbScenePreview.setModel(new DefaultComboBoxModel(App.jarUtil.getScenes().toArray()));
+            //cbScenePreview.updateUI();
+        }
+
+        if (sb.length() > 0) {
+            PropertiesUtil.prop.setProperty("jar_files", sb.toString());
+            PropertiesUtil.save();
+        }
+
+        dlgImportJar.dispose();
+
+    }//GEN-LAST:event_btnImportSaveActionPerformed
+
+    private void miOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miOpenActionPerformed
+
+        fcImportFile.setFileFilter(new FileFilter() {
+
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().toLowerCase().endsWith(".jeg");
+            }
+
+            @Override
+            public String getDescription() {
+                return ".jeg";
+            }
+        });
+
+        fcImportFile.showOpenDialog(this);
+
+        if (fcImportFile.getSelectedFile() != null) {
+            openedFile = fcImportFile.getSelectedFile();
+            project = FileUtil.openProject(openedFile);
+            
+            //cbNewElementType.setModel(new DefaultComboBoxModel(App.jarUtil.getElements().toArray()));
+            //cbScenePreview.setModel(new DefaultComboBoxModel(App.jarUtil.getScenes().toArray()));
+            
+            //tableLibrary.updateUI();
+        }
+
+    }//GEN-LAST:event_miOpenActionPerformed
+
     private JDialog dialog;
     private JColorChooser colorChooser;
 
@@ -1178,16 +1435,25 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JToggleButton btnEdTLHand;
     private javax.swing.JToggleButton btnEdTLSelect;
     private javax.swing.JButton btnEditElement;
+    private javax.swing.JButton btnImportAdd;
+    private javax.swing.JButton btnImportRem;
+    private javax.swing.JButton btnImportSave;
+    private javax.swing.JButton btnImportUpdate;
     private javax.swing.JButton btnPreview;
     private javax.swing.JButton btnRemoveElement;
     private javax.swing.JButton btnRemoveElementTree;
+    private javax.swing.JComboBox cbImportList;
     private javax.swing.JComboBox cbNewElementType;
     private javax.swing.JComboBox cbScenePreview;
     private javax.swing.JFrame dialodNewElement;
+    private javax.swing.JDialog dlgImportJar;
     private javax.swing.JButton dlgNewElementCancel;
     private javax.swing.JButton dlgNewElementOK;
     private javax.swing.JTextField dlgTfID;
     private javax.swing.JTextField dlgTfName;
+    private javax.swing.JFileChooser fcImportFile;
+    private javax.swing.JFileChooser fcOpenProject;
+    private javax.swing.JFileChooser fcSaveProject;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
@@ -1198,14 +1464,20 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelName;
     private javax.swing.JLabel jLabelType;
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JLabel lblCanvasInfo;
+    private javax.swing.JLabel lblImportInfo;
+    private javax.swing.JList lstImportClasses;
     private javax.swing.JMenuBar menuMain;
+    private javax.swing.JMenuItem miExit;
+    private javax.swing.JMenu miImport;
+    private javax.swing.JMenuItem miImportJar;
+    private javax.swing.JMenuItem miOpen;
     private javax.swing.JMenuItem mnSave;
     private javax.swing.JPanel pnBody;
     private javax.swing.JPanel pnBottom;
@@ -1232,7 +1504,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JTextField tfSceneWidth;
     private javax.swing.JTextField tfWindowHeight;
     private javax.swing.JTextField tfWindowWidth;
-    private javax.swing.JTree tree;
+    private javax.swing.JTree treeStage;
     // End of variables declaration//GEN-END:variables
 
     private void updateSelectedOnTable(ElementModel el) {
@@ -1281,13 +1553,13 @@ public class Window extends javax.swing.JFrame {
 
     private ElementModel hasColision(ElementModel element) {
 
-        String[] tabs = treeMap.keySet().toArray(new String[0]);
+        String[] tabs = project.getSceneElements().keySet().toArray(new String[0]);
 
         for (int i = tabs.length - 1; i >= 0; i--) {
             String k = tabs[i];
 
-            for (int j = treeMap.get(k).size() - 1; j >= 0; j--) {
-                ElementModel el = treeMap.get(k).get(j);
+            for (int j = project.getSceneElements().get(k).size() - 1; j >= 0; j--) {
+                ElementModel el = project.getSceneElements().get(k).get(j);
                 if (GraphicTool.g().bcollide(el, element)) {
                     return el;
                 }
@@ -1390,8 +1662,8 @@ public class Window extends javax.swing.JFrame {
 
                 if (scene != null) {
                     //scene.drawElements(g);
-                    for (String k : treeMap.keySet()) {
-                        for (ElementModel el : treeMap.get(k)) {
+                    for (String k : project.getSceneElements().keySet()) {
+                        for (ElementModel el : project.getSceneElements().get(k)) {
                             //el.drawMe(g);
                             cam.draw(g, el);
                         }
@@ -1521,8 +1793,8 @@ public class Window extends javax.swing.JFrame {
 
                         singleSelection(null);
 
-                        for (String k : treeMap.keySet()) {
-                            for (ElementModel el : treeMap.get(k)) {
+                        for (String k : project.getSceneElements().keySet()) {
+                            for (ElementModel el : project.getSceneElements().get(k)) {
 
                                 if (GraphicTool.g().bcollide(el, selector)) {
                                     for (int i = 0; i < stageElements.length; i++) {
@@ -1624,7 +1896,7 @@ public class Window extends javax.swing.JFrame {
     }
 
     private ElementModel getElementFromTree() {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeStage.getLastSelectedPathComponent();
 
         if (node != null) {
 
@@ -1657,7 +1929,7 @@ public class Window extends javax.swing.JFrame {
                 el.setPxy(px, py);
                 el.setName(tfElName.getText());
 
-                tree.updateUI();
+                treeStage.updateUI();
 
             } catch (NumberFormatException e) {
 
@@ -1697,8 +1969,8 @@ public class Window extends javax.swing.JFrame {
 
             @Override
             public void drawScene(Graphics2D g) {
-                for (String k : treeMap.keySet()) {
-                    for (ElementModel el : treeMap.get(k)) {
+                for (String k : project.getSceneElements().keySet()) {
+                    for (ElementModel el : project.getSceneElements().get(k)) {
                         el.drawMe(g);
                     }
                 }
@@ -1796,7 +2068,7 @@ public class Window extends javax.swing.JFrame {
     private void selectElementOnLibrary(ElementModel elementModel) {
         selectedElement = elementModel;
         //updateSelectedOnTable(elementModel);
-        tree.clearSelection();
+        treeStage.clearSelection();
     }
 
     private void openEditElement(ElementModel el) {
@@ -1807,7 +2079,7 @@ public class Window extends javax.swing.JFrame {
         dlg.setVisible(true);
 
         if (dlg.isOk()) {
-            all.add(dlg.getElement());
+            project.getLibElements().add(dlg.getElement());
             tableLibrary.updateUI();
         }
     }
