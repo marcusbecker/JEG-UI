@@ -227,9 +227,7 @@ public class Window extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        fcOpenProject = new javax.swing.JFileChooser();
-        fcSaveProject = new javax.swing.JFileChooser();
-        fcImportFile = new javax.swing.JFileChooser();
+        fc = new javax.swing.JFileChooser();
         dialodNewElement = new javax.swing.JFrame();
         jLabelID = new javax.swing.JLabel();
         jLabelName = new javax.swing.JLabel();
@@ -239,15 +237,6 @@ public class Window extends javax.swing.JFrame {
         dlgNewElementCancel = new javax.swing.JButton();
         dlgNewElementOK = new javax.swing.JButton();
         cbNewElementType = new javax.swing.JComboBox();
-        dlgImportJar = new javax.swing.JDialog();
-        cbImportList = new javax.swing.JComboBox();
-        btnImportRem = new javax.swing.JButton();
-        btnImportAdd = new javax.swing.JButton();
-        lblImportInfo = new javax.swing.JLabel();
-        btnImportUpdate = new javax.swing.JButton();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        lstImportClasses = new javax.swing.JList();
-        btnImportSave = new javax.swing.JButton();
         pnHead = new javax.swing.JPanel();
         pnEditTools = new javax.swing.JPanel();
         btnEdTLSelect = new javax.swing.JToggleButton();
@@ -301,10 +290,8 @@ public class Window extends javax.swing.JFrame {
         miOpen = new javax.swing.JMenuItem();
         mnSave = new javax.swing.JMenuItem();
         miExit = new javax.swing.JMenuItem();
-        miImport = new javax.swing.JMenu();
-        miImportJar = new javax.swing.JMenuItem();
-
-        fcSaveProject.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+        miData = new javax.swing.JMenu();
+        miExpXml = new javax.swing.JMenuItem();
 
         dialodNewElement.setTitle("Add new Element");
 
@@ -332,7 +319,7 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
-        cbNewElementType.setModel(new DefaultComboBoxModel(App.jarUtil.getElements().toArray()));
+        cbNewElementType.setModel(new DefaultComboBoxModel(Project.elements.toArray()));
         cbNewElementType.setRenderer(new DefaultListCellRenderer() {
 
             @Override
@@ -389,80 +376,6 @@ public class Window extends javax.swing.JFrame {
                     .addComponent(dlgNewElementOK)
                     .addComponent(dlgNewElementCancel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        btnImportRem.setText("-");
-        btnImportRem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnImportRemActionPerformed(evt);
-            }
-        });
-
-        btnImportAdd.setText("+");
-        btnImportAdd.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnImportAddActionPerformed(evt);
-            }
-        });
-
-        lblImportInfo.setText(".");
-
-        btnImportUpdate.setText("Update");
-        btnImportUpdate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnImportUpdateActionPerformed(evt);
-            }
-        });
-
-        jScrollPane4.setViewportView(lstImportClasses);
-
-        btnImportSave.setText("Save");
-        btnImportSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnImportSaveActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout dlgImportJarLayout = new javax.swing.GroupLayout(dlgImportJar.getContentPane());
-        dlgImportJar.getContentPane().setLayout(dlgImportJarLayout);
-        dlgImportJarLayout.setHorizontalGroup(
-            dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(dlgImportJarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 741, Short.MAX_VALUE)
-                    .addGroup(dlgImportJarLayout.createSequentialGroup()
-                        .addComponent(cbImportList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnImportAdd)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnImportRem))
-                    .addGroup(dlgImportJarLayout.createSequentialGroup()
-                        .addComponent(lblImportInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnImportUpdate))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dlgImportJarLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnImportSave)))
-                .addContainerGap())
-        );
-        dlgImportJarLayout.setVerticalGroup(
-            dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(dlgImportJarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cbImportList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnImportRem)
-                    .addComponent(btnImportAdd))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(dlgImportJarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblImportInfo)
-                    .addComponent(btnImportUpdate))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnImportSave)
-                .addContainerGap())
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -891,7 +804,7 @@ public class Window extends javax.swing.JFrame {
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText(",");
 
-        cbScenePreview.setModel(new DefaultComboBoxModel(App.jarUtil.getScenes().toArray()));
+        cbScenePreview.setModel(new DefaultComboBoxModel(Project.scenes.toArray()));
         cbScenePreview.setRenderer(new DefaultListCellRenderer() {
 
             @Override
@@ -1022,17 +935,17 @@ public class Window extends javax.swing.JFrame {
 
         menuMain.add(jMenu1);
 
-        miImport.setText("Import");
+        miData.setText("Data");
 
-        miImportJar.setText("Classes in jar file");
-        miImportJar.addActionListener(new java.awt.event.ActionListener() {
+        miExpXml.setText("Export XML");
+        miExpXml.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                miImportJarActionPerformed(evt);
+                miExpXmlActionPerformed(evt);
             }
         });
-        miImport.add(miImportJar);
+        miData.add(miExpXml);
 
-        menuMain.add(miImport);
+        menuMain.add(miData);
 
         setJMenuBar(menuMain);
 
@@ -1182,7 +1095,7 @@ public class Window extends javax.swing.JFrame {
     private void mnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnSaveActionPerformed
 
         if (openedFile == null) {
-            fcSaveProject.setFileFilter(new FileFilter() {
+            fc.setFileFilter(new FileFilter() {
 
                 @Override
                 public boolean accept(File f) {
@@ -1195,8 +1108,8 @@ public class Window extends javax.swing.JFrame {
                 }
             });
 
-            fcSaveProject.showSaveDialog(this);
-            openedFile = fcSaveProject.getSelectedFile();
+            fc.showSaveDialog(this);
+            openedFile = fc.getSelectedFile();
         }
 
         if (openedFile != null) {
@@ -1316,88 +1229,9 @@ public class Window extends javax.swing.JFrame {
 
     }//GEN-LAST:event_miExitActionPerformed
 
-    private void btnImportAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportAddActionPerformed
-
-        fcImportFile.setFileFilter(new FileFilter() {
-
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase().endsWith(".jar");
-            }
-
-            @Override
-            public String getDescription() {
-                return ".jar";
-            }
-        });
-
-        fcImportFile.showOpenDialog(this);
-
-        if (fcImportFile.getSelectedFile() != null) {
-            cbImportList.addItem(fcImportFile.getSelectedFile().getAbsolutePath());
-
-            List<String> listClassNames = App.jarUtil.listClassNames(fcImportFile.getSelectedFile().getAbsolutePath());
-            List<Class> classNames = App.jarUtil.getClassNames(fcImportFile.getSelectedFile().getAbsolutePath(), listClassNames);
-
-            DefaultListModel d = new DefaultListModel();
-
-            for (Class c : classNames) {
-                d.addElement(c.getSimpleName());
-            }
-
-            lstImportClasses.setModel(d);
-        }
-
-
-    }//GEN-LAST:event_btnImportAddActionPerformed
-
-    private void miImportJarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miImportJarActionPerformed
-
-        dlgImportJar.pack();
-        dlgImportJar.setLocationRelativeTo(this);
-        dlgImportJar.setVisible(true);
-
-    }//GEN-LAST:event_miImportJarActionPerformed
-
-    private void btnImportRemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportRemActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnImportRemActionPerformed
-
-    private void btnImportUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportUpdateActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnImportUpdateActionPerformed
-
-    private void btnImportSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportSaveActionPerformed
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < cbImportList.getItemCount(); i++) {
-            String path = cbImportList.getItemAt(i).toString();
-
-            sb.append(path).append(";");
-
-            project.getImportFiles().add(path);
-
-            List<String> listClassNames = App.jarUtil.listClassNames(path);
-            App.jarUtil.populeClassNames(path, listClassNames);
-
-            cbNewElementType.setModel(new DefaultComboBoxModel(App.jarUtil.getElements().toArray()));
-            cbScenePreview.setModel(new DefaultComboBoxModel(App.jarUtil.getScenes().toArray()));
-            //cbScenePreview.updateUI();
-        }
-
-        if (sb.length() > 0) {
-            PropertiesUtil.prop.setProperty("jar_files", sb.toString());
-            PropertiesUtil.save();
-        }
-
-        dlgImportJar.dispose();
-
-    }//GEN-LAST:event_btnImportSaveActionPerformed
-
     private void miOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miOpenActionPerformed
 
-        fcImportFile.setFileFilter(new FileFilter() {
+        fc.setFileFilter(new FileFilter() {
 
             @Override
             public boolean accept(File f) {
@@ -1410,10 +1244,10 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
-        fcImportFile.showOpenDialog(this);
+        fc.showOpenDialog(this);
 
-        if (fcImportFile.getSelectedFile() != null) {
-            openedFile = fcImportFile.getSelectedFile();
+        if (fc.getSelectedFile() != null) {
+            openedFile = fc.getSelectedFile();
             project = FileUtil.openProject(openedFile);
             
             //cbNewElementType.setModel(new DefaultComboBoxModel(App.jarUtil.getElements().toArray()));
@@ -1423,6 +1257,12 @@ public class Window extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_miOpenActionPerformed
+
+    private void miExpXmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miExpXmlActionPerformed
+        
+        
+        
+    }//GEN-LAST:event_miExpXmlActionPerformed
 
     private JDialog dialog;
     private JColorChooser colorChooser;
@@ -1435,25 +1275,17 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JToggleButton btnEdTLHand;
     private javax.swing.JToggleButton btnEdTLSelect;
     private javax.swing.JButton btnEditElement;
-    private javax.swing.JButton btnImportAdd;
-    private javax.swing.JButton btnImportRem;
-    private javax.swing.JButton btnImportSave;
-    private javax.swing.JButton btnImportUpdate;
     private javax.swing.JButton btnPreview;
     private javax.swing.JButton btnRemoveElement;
     private javax.swing.JButton btnRemoveElementTree;
-    private javax.swing.JComboBox cbImportList;
     private javax.swing.JComboBox cbNewElementType;
     private javax.swing.JComboBox cbScenePreview;
     private javax.swing.JFrame dialodNewElement;
-    private javax.swing.JDialog dlgImportJar;
     private javax.swing.JButton dlgNewElementCancel;
     private javax.swing.JButton dlgNewElementOK;
     private javax.swing.JTextField dlgTfID;
     private javax.swing.JTextField dlgTfName;
-    private javax.swing.JFileChooser fcImportFile;
-    private javax.swing.JFileChooser fcOpenProject;
-    private javax.swing.JFileChooser fcSaveProject;
+    private javax.swing.JFileChooser fc;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
@@ -1469,14 +1301,11 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JLabel lblCanvasInfo;
-    private javax.swing.JLabel lblImportInfo;
-    private javax.swing.JList lstImportClasses;
     private javax.swing.JMenuBar menuMain;
+    private javax.swing.JMenu miData;
     private javax.swing.JMenuItem miExit;
-    private javax.swing.JMenu miImport;
-    private javax.swing.JMenuItem miImportJar;
+    private javax.swing.JMenuItem miExpXml;
     private javax.swing.JMenuItem miOpen;
     private javax.swing.JMenuItem mnSave;
     private javax.swing.JPanel pnBody;

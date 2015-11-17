@@ -2,14 +2,7 @@
 
 <Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.JFileChooser" name="fcOpenProject">
-    </Component>
-    <Component class="javax.swing.JFileChooser" name="fcSaveProject">
-      <Properties>
-        <Property name="dialogType" type="int" value="1"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JFileChooser" name="fcImportFile">
+    <Component class="javax.swing.JFileChooser" name="fc">
     </Component>
     <Container class="javax.swing.JFrame" name="dialodNewElement">
       <Properties>
@@ -122,118 +115,12 @@
         <Component class="javax.swing.JComboBox" name="cbNewElementType">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="new DefaultComboBoxModel(App.jarUtil.getElements().toArray())" type="code"/>
+              <Connection code="new DefaultComboBoxModel(Project.elements.toArray())" type="code"/>
             </Property>
             <Property name="renderer" type="javax.swing.ListCellRenderer" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection code="new DefaultListCellRenderer() {&#xa;&#xa;            @Override&#xa;            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {&#xa;                String item = ((Class&lt;? extends ElementModel&gt;)value).getSimpleName();&#xa;&#xa;                return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);&#xa;            }&#xa;        }" type="code"/>
             </Property>
           </Properties>
-        </Component>
-      </SubComponents>
-    </Container>
-    <Container class="javax.swing.JDialog" name="dlgImportJar">
-
-      <Layout>
-        <DimensionLayout dim="0">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane4" pref="741" max="32767" attributes="0"/>
-                      <Group type="102" attributes="0">
-                          <Component id="cbImportList" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnImportAdd" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnImportRem" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" attributes="0">
-                          <Component id="lblImportInfo" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnImportUpdate" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="1" attributes="0">
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                          <Component id="btnImportSave" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <EmptySpace max="-2" attributes="0"/>
-              </Group>
-          </Group>
-        </DimensionLayout>
-        <DimensionLayout dim="1">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="cbImportList" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnImportRem" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnImportAdd" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="lblImportInfo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnImportUpdate" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="jScrollPane4" pref="227" max="32767" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Component id="btnImportSave" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-              </Group>
-          </Group>
-        </DimensionLayout>
-      </Layout>
-      <SubComponents>
-        <Component class="javax.swing.JComboBox" name="cbImportList">
-        </Component>
-        <Component class="javax.swing.JButton" name="btnImportRem">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="-"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnImportRemActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JButton" name="btnImportAdd">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="+"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnImportAddActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JLabel" name="lblImportInfo">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="."/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JButton" name="btnImportUpdate">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Update"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnImportUpdateActionPerformed"/>
-          </Events>
-        </Component>
-        <Container class="javax.swing.JScrollPane" name="jScrollPane4">
-          <AuxValues>
-            <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-          </AuxValues>
-
-          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-          <SubComponents>
-            <Component class="javax.swing.JList" name="lstImportClasses">
-            </Component>
-          </SubComponents>
-        </Container>
-        <Component class="javax.swing.JButton" name="btnImportSave">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Save"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnImportSaveActionPerformed"/>
-          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -279,17 +166,17 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="miImport">
+        <Menu class="javax.swing.JMenu" name="miData">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Import"/>
+            <Property name="text" type="java.lang.String" value="Data"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="miImportJar">
+            <MenuItem class="javax.swing.JMenuItem" name="miExpXml">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Classes in jar file"/>
+                <Property name="text" type="java.lang.String" value="Export XML"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="miImportJarActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="miExpXmlActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>
@@ -1092,7 +979,7 @@
             <Component class="javax.swing.JComboBox" name="cbScenePreview">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new DefaultComboBoxModel(App.jarUtil.getScenes().toArray())" type="code"/>
+                  <Connection code="new DefaultComboBoxModel(Project.scenes.toArray())" type="code"/>
                 </Property>
                 <Property name="renderer" type="javax.swing.ListCellRenderer" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="new DefaultListCellRenderer() {&#xa;&#xa;            @Override&#xa;            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {&#xa;                String item = ((Class&lt;? extends IScene&gt;)value).getSimpleName();&#xa;&#xa;                return super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus);&#xa;            }&#xa;        }" type="code"/>

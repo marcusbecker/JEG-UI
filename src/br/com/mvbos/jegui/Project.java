@@ -6,9 +6,11 @@
 package br.com.mvbos.jegui;
 
 import br.com.mvbos.jeg.element.ElementModel;
+import br.com.mvbos.jeg.scene.IScene;
 import static br.com.mvbos.jegui.Constants.BACKGROUND;
 import static br.com.mvbos.jegui.Constants.FOREGROUND;
 import static br.com.mvbos.jegui.Constants.STAGE;
+import br.com.mvbos.jegui.prev.DefaultScene;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,6 +24,17 @@ import java.util.Set;
  * @author Marcus Becker
  */
 public class Project implements Serializable {
+
+    public static final List<Class<? extends IScene>> scenes;
+    public static final List<Class<? extends ElementModel>> elements;
+
+    static {
+        scenes = new ArrayList<>(5);
+        elements = new ArrayList<>(5);
+
+        scenes.add(DefaultScene.class);
+        elements.add(ElementModel.class);
+    }
 
     private String title;
 
