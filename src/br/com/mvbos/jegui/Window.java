@@ -15,9 +15,11 @@ import br.com.mvbos.jegui.ui.tree.ElementMutableTreeNode;
 import br.com.mvbos.jeg.window.Camera;
 import br.com.mvbos.jeg.window.IMemory;
 import br.com.mvbos.jeg.window.impl.MemoryImpl;
+import br.com.mvbos.jegee.ExportElement;
+import br.com.mvbos.jegee.Scene;
 import br.com.mvbos.jegui.dialogs.DialogNewImageElement;
 import br.com.mvbos.jegui.el.ButtonElement;
-import br.com.mvbos.jegui.external.PropertiesUtil;
+import br.com.mvbos.jegui.external.JarUtil;
 import br.com.mvbos.jegui.prev.PreviewWindow;
 import java.awt.Color;
 import java.awt.Component;
@@ -33,16 +35,16 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -54,6 +56,9 @@ import javax.swing.tree.TreePath;
  * @author Marcus Becker
  */
 public class Window extends javax.swing.JFrame {
+
+    private static final FileNameExtensionFilter XML_EXTENSION_FILE_FILTER = new FileNameExtensionFilter("XML files", "xml");
+    private static final FileNameExtensionFilter PROJECT_EXTENSION_FILE_FILTER = new FileNameExtensionFilter("JEG-UI Projects", "jeg");
 
     private final Camera cam = Camera.createNew();
     private final PropertyElementTable elementTable = new PropertyElementTable();
@@ -1095,18 +1100,9 @@ public class Window extends javax.swing.JFrame {
     private void mnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnSaveActionPerformed
 
         if (openedFile == null) {
-            fc.setFileFilter(new FileFilter() {
 
-                @Override
-                public boolean accept(File f) {
-                    return f.isDirectory() || f.getName().toLowerCase().endsWith(".jeg");
-                }
-
-                @Override
-                public String getDescription() {
-                    return ".jeg";
-                }
-            });
+            fc.resetChoosableFileFilters();
+            fc.setFileFilter(PROJECT_EXTENSION_FILE_FILTER);
 
             fc.showSaveDialog(this);
             openedFile = fc.getSelectedFile();
@@ -1118,6 +1114,7 @@ public class Window extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_mnSaveActionPerformed
+
 
     private void btnEdTLSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEdTLSelectActionPerformed
 
@@ -1154,7 +1151,7 @@ public class Window extends javax.swing.JFrame {
         Dimension wDim = new Dimension(Util.getInt(tfSceneWidth), Util.getInt(tfSceneHeight));
         Dimension sDim = new Dimension(Util.getInt(tfWindowWidth), Util.getInt(tfWindowHeight));
 
-        IScene s = App.jarUtil.getScene(cbScenePreview.getSelectedIndex());
+        IScene s = Project.getScene(cbScenePreview.getSelectedIndex());
 
         int i = 0;
         IMemory[] arr = new IMemory[project.getSceneElements().size()];
@@ -1164,7 +1161,7 @@ public class Window extends javax.swing.JFrame {
             arr[i] = new MemoryImpl(l.size());
 
             for (ElementModel e : l) {
-                arr[i].registerElement(App.jarUtil.copy(e));
+                arr[i].registerElement(JarUtil.copy(e));
             }
 
             i++;
@@ -1203,7 +1200,7 @@ public class Window extends javax.swing.JFrame {
 
     private void dlgNewElementOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dlgNewElementOKActionPerformed
 
-        ElementModel el = App.jarUtil.getElement(cbNewElementType.getSelectedIndex());
+        ElementModel el = Project.getElement(cbNewElementType.getSelectedIndex());
 
         System.out.println("el " + (el.getClass()));
 
@@ -1231,37 +1228,43 @@ public class Window extends javax.swing.JFrame {
 
     private void miOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miOpenActionPerformed
 
-        fc.setFileFilter(new FileFilter() {
-
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase().endsWith(".jeg");
-            }
-
-            @Override
-            public String getDescription() {
-                return ".jeg";
-            }
-        });
+        fc.resetChoosableFileFilters();
+        fc.setFileFilter(PROJECT_EXTENSION_FILE_FILTER);
 
         fc.showOpenDialog(this);
 
         if (fc.getSelectedFile() != null) {
             openedFile = fc.getSelectedFile();
             project = FileUtil.openProject(openedFile);
-            
+
             //cbNewElementType.setModel(new DefaultComboBoxModel(App.jarUtil.getElements().toArray()));
             //cbScenePreview.setModel(new DefaultComboBoxModel(App.jarUtil.getScenes().toArray()));
-            
             //tableLibrary.updateUI();
         }
 
     }//GEN-LAST:event_miOpenActionPerformed
 
     private void miExpXmlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miExpXmlActionPerformed
-        
-        
-        
+
+        fc.resetChoosableFileFilters();
+        fc.setFileFilter(XML_EXTENSION_FILE_FILTER);
+
+        fc.showSaveDialog(this);
+
+        if (fc.getSelectedFile() != null) {
+            Scene sc = new Scene();
+            sc.setTitle(project.getTitle());
+
+            List<ElementModel> all = new ArrayList<>(30);
+            for (String s : project.getSceneElements().keySet()) {
+                all.addAll(project.getSceneElements().get(s));
+            }
+
+            sc.setElement(ExportElement.elementToExpo(all));
+
+            ExportElement.save(fc.getSelectedFile(), sc);
+        }
+
     }//GEN-LAST:event_miExpXmlActionPerformed
 
     private JDialog dialog;
@@ -1370,7 +1373,7 @@ public class Window extends javax.swing.JFrame {
     }
 
     private ElementModel copy(float px, float py, ElementModel source) {
-        ElementModel el = App.jarUtil.copy(source);
+        ElementModel el = JarUtil.copy(source);
         el.setPxy(px, py);
 
         el.setId(id++);

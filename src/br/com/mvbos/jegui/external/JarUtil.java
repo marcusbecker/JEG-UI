@@ -26,12 +26,12 @@ import java.util.zip.ZipInputStream;
  *
  * @author Marcus Becker
  */
-public class JartUtil {
+public class JarUtil {
 
     private final List<Class<? extends IScene>> scenes;
     private final List<Class<? extends ElementModel>> elements;
 
-    public JartUtil() {
+    public JarUtil() {
         scenes = new ArrayList<>(10);
         elements = new ArrayList<>(10);
 
@@ -45,7 +45,7 @@ public class JartUtil {
         try {
             return c.newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JarUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;
@@ -70,7 +70,7 @@ public class JartUtil {
             }
 
         } catch (Exception e) {
-            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(JarUtil.class.getName()).log(Level.SEVERE, null, e);
         }
 
         return classNames;
@@ -109,7 +109,7 @@ public class JartUtil {
             }
 
         } catch (MalformedURLException | ClassNotFoundException e) {
-            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(JarUtil.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
@@ -144,7 +144,7 @@ public class JartUtil {
             }
 
         } catch (MalformedURLException | ClassNotFoundException e) {
-            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(JarUtil.class.getName()).log(Level.SEVERE, null, e);
         }
 
         return lstClasses;
@@ -207,11 +207,11 @@ public class JartUtil {
             }
 
         } catch (MalformedURLException | ClassNotFoundException | IllegalAccessException e) {
-            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(JarUtil.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
-    public ElementModel copy(ElementModel org) {
+    public static ElementModel copy(ElementModel org) {
 
         ElementModel copy = null;
 
@@ -227,13 +227,13 @@ public class JartUtil {
 
             //copy.setName("Novo elemento");
         } catch (InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException e) {
-            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(JarUtil.class.getName()).log(Level.SEVERE, null, e);
         }
 
         return copy;
     }
 
-    public void copy(final Class<? extends ElementModel> cpClass, Object copy, ElementModel org, Field[] fields) throws IllegalAccessException, IllegalArgumentException, SecurityException {
+    public static void copy(final Class<? extends ElementModel> cpClass, Object copy, ElementModel org, Field[] fields) throws IllegalAccessException, IllegalArgumentException, SecurityException {
         for (Field f : fields) {
 
             if (Modifier.isFinal(f.getModifiers()) || Modifier.isStatic(f.getModifiers())) {
@@ -261,7 +261,7 @@ public class JartUtil {
         try {
             return scenes.get(selectedIndex).newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JarUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;
@@ -271,7 +271,7 @@ public class JartUtil {
         try {
             return elements.get(selectedIndex).newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(JartUtil.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JarUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;

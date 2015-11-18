@@ -5,23 +5,11 @@
  */
 package br.com.mvbos.jegui;
 
-import br.com.mvbos.jegui.external.JartUtil;
-
 /**
  *
  * @author mbecker
  */
 public class App {
-
-    public static final JartUtil jarUtil;
-
-    static {
-        jarUtil = new JartUtil();
-        //File f = new File("C:\\Users\\Marcus Becker\\Documents\\SpaceColony\\dist\\SpaceColony.jar");
-        //List<String> listClassNames = jarUtil.listClassNames(f.getAbsolutePath());
-        //--jarUtil.instanceClassNames(f.getAbsolutePath(), listClassNames);
-        //jarUtil.populeClassNames(f.getAbsolutePath(), listClassNames);
-    }
 
     public static void main(String args[]) {
 

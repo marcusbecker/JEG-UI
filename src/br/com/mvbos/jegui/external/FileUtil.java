@@ -6,7 +6,6 @@
 package br.com.mvbos.jegui.external;
 
 import br.com.mvbos.jeg.element.ElementModel;
-import br.com.mvbos.jegui.App;
 import static br.com.mvbos.jegui.Constants.BACKGROUND;
 import static br.com.mvbos.jegui.Constants.FOREGROUND;
 import static br.com.mvbos.jegui.Constants.STAGE;
@@ -18,11 +17,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,7 +34,11 @@ public class FileUtil {
 
     public static void saveProject(File dst, Project project) {
 
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dst + ".jeg"))) {
+        if (!dst.getName().toLowerCase().endsWith(".jeg")) {
+            dst = new File(dst.getAbsolutePath().concat(".jeg"));
+        }
+
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dst))) {
             out.writeObject(project);
             out.reset();
         } catch (IOException ex) {
@@ -49,16 +50,7 @@ public class FileUtil {
 
         if (f.exists()) {
 
-            String[] paths = PropertiesUtil.prop.getProperty("jar_files").split(";");
-            Set<Class> cls = new HashSet<>(10);
-
-            for (String path : paths) {
-                List<String> ln = App.jarUtil.listClassNames(path);
-                List<Class> cs = App.jarUtil.getClassNames(path, ln);
-                cls.addAll(cs);
-            }
-
-            try (ObjectInputStream in = new MyObjectInputStream(cls, new FileInputStream(f))) {
+            try (ObjectInputStream in = new MyObjectInputStream(new FileInputStream(f))) {
                 return (Project) in.readObject();
             } catch (Exception ex) {
                 Logger.getLogger(FileUtil.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,6 +77,7 @@ public class FileUtil {
         }
     }
 
+    @Deprecated
     public static Map<String, List<ElementModel>> loadList() {
         File f = new File(SCENE_ELEMENTS);
 
@@ -105,6 +98,7 @@ public class FileUtil {
         return treeMap;
     }
 
+    @Deprecated
     public static List<ElementModel> loadLib() {
         File f = new File(LIBRARY_ELEMENTS);
 

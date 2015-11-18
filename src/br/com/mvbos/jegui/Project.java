@@ -18,6 +18,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -85,6 +87,26 @@ public class Project implements Serializable {
 
     public void setImportFiles(Set<String> importFiles) {
         this.importFiles = importFiles;
+    }
+
+    public static IScene getScene(int selectedIndex) {
+        try {
+            return scenes.get(selectedIndex).newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(Project.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
+    }
+
+    public static ElementModel getElement(int selectedIndex) {
+        try {
+            return elements.get(selectedIndex).newInstance();
+        } catch (InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(Project.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
     }
 
     @Override
